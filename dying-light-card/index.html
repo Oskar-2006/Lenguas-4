@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dying Light Card - Wireframe responsive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #1b1b1b;
+    font-family: "Oswald", "Arial Narrow", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+
+  /* ===========================================================
+     ESTRUCTURA BASE = "MOBILE-FIRST"
+     -----------------------------------------------------------
+     Mobile-first significa: todo lo que escribes FUERA de un
+     media query es el estilo por defecto, y se asume que es
+     para la pantalla más chica (celular). Luego, con media
+     queries, vas AGREGANDO o SOBREESCRIBIENDO reglas a medida
+     que la pantalla crece.
+
+     Es la práctica recomendada porque:
+     1) El celular es el caso más restrictivo (menos espacio),
+        así que resolverlo primero obliga a priorizar contenido.
+     2) Los navegadores de escritorio también leen el CSS base,
+        así que evitas repetir estilos que no cambian entre
+        breakpoints (fondo, borde, padding, tipografía, etc.).
+
+     Esta es la grilla que ya probamos: 3 columnas x 5 filas,
+     imagen centrada arriba, resto de bloques apilados.
+     =========================================================== */
+  .container {
+    width: 260px;
+    height: 380px;
+    display: grid;
+    grid-template-columns: 0.5fr 3fr 0.5fr;
+    grid-template-rows: 0.5fr 2fr 1fr 1fr 0.5fr;
+    gap: 4px;
+    grid-auto-flow: row;
+    grid-template-areas:
+      "Header Header Header"
+      ". Image ."
+      "Description Description Description"
+      "Powers Powers Powers"
+      "Stars Stars Stars";
+    border: 1px solid #3a3a3a;
+    border-top: 3px solid #f7941d;
+    border-radius: 2px;
+    padding: 6px;
+    background: #1c1c1c;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    font-family: "Oswald", "Arial Narrow", sans-serif;
+    color: #e8e8e8;
+  }
+
+  /* ===========================================================
+     MEDIA QUERY: BREAKPOINT DESKTOP / WEB
+     -----------------------------------------------------------
+     Sintaxis general de una media query:
+
+       @media (condición) {
+         selector { propiedades que se sobreescriben }
+       }
+
+     - "min-width: 768px" se lee como "aplica este bloque SOLO
+       cuando el ancho del viewport sea 768px o MÁS GRANDE".
+       Por eso combina con mobile-first: vas escalando "hacia
+       arriba" en tamaño de pantalla.
+     - Si en vez de mobile-first hicieras "desktop-first",
+       usarías "max-width" (aplica cuando el viewport es ese
+       tamaño o MÁS CHICO) y escribirías el CSS de escritorio
+       primero, luego irías reduciendo con max-width.
+     - Puedes combinar condiciones con "and":
+         @media (min-width: 768px) and (max-width: 1024px) { }
+       esto crea un breakpoint intermedio (ej. tablet).
+     - También existen otras condiciones además de ancho, como
+       (orientation: landscape) o (prefers-color-scheme: dark).
+
+     ¿Por qué 768px? Es un valor clásico heredado de los
+     primeros frameworks (Bootstrap) que marcaba "de acá para
+     arriba ya no es celular, es tablet/desktop". No es una ley,
+     es solo una convención cómoda; puedes ajustarlo a la medida
+     real donde tu diseño se ve incómodo si haces la prueba
+     achicando la ventana del navegador.
+
+     Dentro de este bloque sobreescribimos SOLO lo que cambia:
+     columnas, filas y áreas de la grilla (imagen y poderes/
+     estrellas a la izquierda, descripción a la derecha ocupando
+     todo el alto). Todo lo que no repetimos aquí (fondo, borde,
+     padding, radius) se sigue heredando de la regla base .container
+     de más arriba: esa es la ventaja de mobile-first, evitas
+     duplicar CSS que no cambia entre tamaños de pantalla.
+     =========================================================== */
+  @media (min-width: 768px) {
+    .container {
+      width: 1920px;
+      height: 1080px;
+      grid-template-columns: 0.7fr 4fr 0.8fr 1fr 1fr;
+      grid-template-rows: 0.5fr 2fr 1fr 1fr 0.5fr;
+      grid-auto-columns: 1fr;
+      grid-auto-rows: 1fr;
+      grid-template-areas:
+        "Header Header Header Header Header"
+        "Image Image Image Description Description"
+        "Image Image Image Description Description"
+        "Powers Powers Powers Description Description"
+        "Stars Stars Stars Description Description";
+    }
+  }
+
+  /* Los bloques imitan la interfaz real de inventario de Dying
+     Light (ver INPUT/image-reference-inventory.jpeg): panel gris
+     oscuro, acento ámbar, barra de nombre resaltada como un ítem
+     equipado y filas de estadísticas tipo DAÑOS/DURABILIDAD.
+     El grid-area sigue ubicando cada bloque según el breakpoint. */
+  .Header      { grid-area: Header; }
+  .Image       { grid-area: Image; }
+  .Description { grid-area: Description; }
+  .Powers      { grid-area: Powers; }
+  .Stars       { grid-area: Stars; }
+
+  .Header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    background: #f7941d;
+    padding: 6px 10px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #1a1408;
+  }
+  .Header .hp {
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: #3a2c0f;
+  }
+
+  .Image {
+    display: flex;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid #3a3a3a;
+  }
+
+  .Image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .Description {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    background: #1c1c1c;
+    padding: 8px 10px;
+  }
+  .Description .label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #8a8a8a;
+  }
+  .Description .text {
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 1.45;
+    text-align: left;
+    color: #cfcfcf;
+  }
+
+  .Powers {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    background: #1c1c1c;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .power {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    border-bottom: 1px solid #2e2e2e;
+  }
+  .power:last-child {
+    border-bottom: none;
+  }
+  .power .cost {
+    color: #6a6a6a;
+    font-size: 10px;
+  }
+  .power .power-name {
+    flex: 1;
+    text-align: left;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #e8e8e8;
+  }
+  .power .power-val {
+    font-weight: 600;
+    color: #f7941d;
+  }
+
+  .Stars {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 10px;
+  }
+  .Stars .threat-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #cfcfcf;
+  }
+  .Stars .threat-label span:last-child {
+    color: #f7941d;
+    font-weight: 600;
+  }
+  .Stars .threat-bar {
+    height: 4px;
+    background: #2e2e2e;
+  }
+  .Stars .threat-fill {
+    height: 100%;
+    width: 95%;
+    background: #f7941d;
+  }
+
+  /* ===========================================================
+     REFUERZO VISUAL SOLO EN DESKTOP
+     -----------------------------------------------------------
+     El grid ya cambia de layout en este breakpoint (ver arriba).
+     Acá SOLO tocamos tipografía y detalles de estilo del HUD:
+     el grosor de bordes/paddings/gap de la versión mobile queda
+     igual (en px), porque eso ya se ve bien y no es lo que hay
+     que corregir; lo que fallaba en pantallas grandes era que el
+     texto seguía en tamaño de celular y se veía diminuto.
+     =========================================================== */
+  @media (min-width: 768px) {
+    .Header {
+      font-size: 34px;
+      letter-spacing: 2.5px;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+    .Header .hp {
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+
+    .Image {
+      border-width: 2px;
+    }
+
+    .Description .label {
+      font-size: 18px;
+      letter-spacing: 3px;
+    }
+    .Description .text {
+      font-size: 28px;
+      line-height: 1.5;
+    }
+
+    .Powers {
+      gap: 10px;
+    }
+    .power {
+      padding: 10px 0;
+    }
+    .power .cost {
+      font-size: 18px;
+      letter-spacing: 3px;
+    }
+    .power .power-name {
+      font-size: 26px;
+      letter-spacing: 1px;
+    }
+    .power .power-val {
+      font-size: 28px;
+    }
+
+    .Stars .threat-label {
+      font-size: 22px;
+      letter-spacing: 1.5px;
+    }
+    .Stars .threat-bar {
+      height: 10px;
+      background: repeating-linear-gradient(
+        90deg,
+        #2e2e2e,
+        #2e2e2e 22px,
+        #242424 22px,
+        #242424 26px
+      );
+    }
+    .Stars .threat-fill {
+      background: repeating-linear-gradient(
+        90deg,
+        #f7941d,
+        #f7941d 22px,
+        #c96e00 22px,
+        #c96e00 26px
+      );
+    }
+  }
+
+  /* Aviso de referencia: solo para ver en qué modo estamos mientras probamos */
+  .badge {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    font-family: monospace;
+    font-size: 12px;
+    color: #9ada6b;
+    background: #222;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .badge::before { content: "modo: mobile (< 768px)"; }
+  @media (min-width: 768px) {
+    .badge::before { content: "modo: web (>= 768px)"; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="badge"></div>
+
+  <div class="container">
+    <div class="Header">
+      <span class="name">The Beast</span>
+      <span class="hp">Enraged Infected</span>
+    </div>
+    <div class="Image"><img src="../INPUT/image-refenrece.jpg" alt="The Beast, an enraged infected roaring in the dark"></div>
+    <div class="Description">
+      <span class="label">Info</span>
+      <span class="text">Once human, now consumed by an uncontrollable rage. It roars through the ruins of the city, driven by a fury it can no longer restrain.</span>
+    </div>
+    <div class="Powers">
+      <div class="power"><span class="cost">●●●</span><span class="power-name">Rage</span><span class="power-val">+3</span></div>
+      <div class="power"><span class="cost">●●</span><span class="power-name">Regeneration</span><span class="power-val">+2</span></div>
+      <div class="power"><span class="cost">●●●</span><span class="power-name">Ground Slam</span><span class="power-val">+3</span></div>
+    </div>
+    <div class="Stars">
+      <div class="threat-label"><span>Threat Level</span><span>Extreme</span></div>
+      <div class="threat-bar"><div class="threat-fill"></div></div>
+    </div>
+  </div>
+
+</body>
+</html>
