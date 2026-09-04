@@ -42,7 +42,26 @@
         border-radius: 8px;
         }
 
+      .grid-item {
+      background-color: #3498db;
+      color: white;
+      padding: 30px;
+      text-align: center;
+      font-size: 1.5rem;
+      border-radius: 6px;
+      }
+
+      @media (min-width: 300px) {
         .grid-item {
+          background-color: yellow;
+          }
+      }
+      @media (min-width: 600px) {
+        .grid-item {
+          display: none;
+          }
+      }
+        .grid-item-2 {
         background-color: #3498db;
         color: white;
         padding: 30px;
@@ -51,6 +70,14 @@
         border-radius: 6px;
         }
 
+        .grid-item-3 {
+          background-color: #e67e22;
+          color: white;
+          padding: 30px;
+          text-align: center;
+          font-size: 1.5rem;
+          border-radius: 6px;
+        }
     /* TODO 4 (opcional, para quien termine antes): alinea el
        contenido de cada celda al centro verticalmente.
        Propiedad: align-items (va en .grid-container, no en .grid-item)
@@ -100,8 +127,22 @@
             <div class="grid-item">8</div>
             <div id="demo" class="grid-item">9</div>
   </div>
+
   <button id="boton">Botón</button>
-    <button id="segundo">Botón 2</button>
+  <button id="segundo">Botón 2</button>
+  <button id="dark-mode-Toggle">☀️ modo claro</button>
+
+  <div id="caja-2" class="grid-container">
+    <div class="grid-item-2">Elemento 1</div>
+    <div class="grid-item-2">Elemento 2</div>
+    <div class="grid-item-2">Elemento 3</div>
+  </div>
+
+  <div id="caja-3" class="grid-container">
+    <div class="grid-item-3">Nuevo elemento 1</div>
+    <div class="grid-item-3">Nuevo elemento 2</div>
+    <div class="grid-item-3">Nuevo elemento 3</div>
+  </div>
   <script>
     let txt = document.getElementById("demo");
     txt.textContent="Hola mundo"
@@ -119,6 +160,36 @@
       tx2.style.backgroundColor = "orange";
       document.body.classList.toggle("dark-mode");
     });
+
+    const darkmodeToggle = document.getElementById("dark-mode-Toggle");
+
+    darkmodeToggle.addEventListener("click", () => {
+      document.body.classList.toggle(("dark-mode"));
+      if (document.body.classList.contains("dark-mode"))
+        {darkmodeToggle.textContent = "☀️ modo claro";}
+      else { darkmodeToggle.textContent = "🌙 modo oscuro";}
+    });
+
+    // Busca la caja con el id "caja-3"
+    const caja3 = document.getElementById("caja-3");
+
+    // Comprueba si la ventana tiene un ancho mínimo de 600 píxeles
+    const mediaQuery = window.matchMedia("(min-width: 600px)");
+
+    // Muestra u oculta caja-3 según el ancho de la ventana
+    function actualizarCaja3(evento) {
+      // Si el ancho es de 600px o más, oculta la caja
+      // Si es menor, la muestra usando display: grid
+      caja3.style.display = evento.matches ? "none" : "grid";
+    }
+
+    // Ejecuta la función inmediatamente al cargar la página
+    actualizarCaja3(mediaQuery);
+
+    // Ejecuta nuevamente la función cuando cambia el tamaño
+    // y se cruza el límite de 600 píxeles
+    mediaQuery.addEventListener("change", actualizarCaja3);
+
   </script>
 </body>
 </html>
