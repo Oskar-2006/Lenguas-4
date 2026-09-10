@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documento</title>
+</head>
+<body>
+    <section id="desktop">
+        <section class="title">
+            <h1>Leopardo</h1>
+        </section>
+
+        <section class="image">
+            <img src="IMG prueba uno/leopardo.jpeg" alt="Leopardo sentado en el suelo">
+        </section>
+
+        <section class="description">
+            <p>Leopardo sentado en el suelo.</p>
+        </section>
+    </section>
+
+    <section id="tablet">
+        <section class="medio">
+            <h1>Leopardo</h1>
+        </section>
+
+        <section class="image">
+        <img src="IMG prueba uno/gato.jpeg" alt="Gato anaranjado y blanco sentado junto a su plato de comida sobre una alfombra">
+        </section>
+
+        <section class="description">
+        <p>Gato anaranjado y blanco junto a su plato de comida.</p>
+        </section>
+    </section>
+
+    <section id="mobile">
+        <section class="pequeño">
+        <h1>Gatico</h1>
+        </section>
+
+        <section class="image">
+        <img src="IMG prueba uno/gatobb.jpeg" alt="Gato anaranjado y blanco sentado junto a su plato de comida sobre una alfombra">
+        </section>
+
+        <section class="description">
+        <p>Gato anaranjado con blanco acostado viviendo la vida.</p>
+        </section>
+    </section>
+    <script>
+
+    const img1 = 'IMG prueba uno/leopardo.jpeg';
+    const img2 = 'IMG prueba uno/gato.jpeg';
+    const img3 = 'IMG prueba uno/gatobb.jpeg';
+
+    const desktopSection = document.getElementById('desktop');
+    const tabletSection = document.getElementById('tablet');
+    const mobileSection = document.getElementById('mobile');
+
+    function resize() {
+      desktopSection.hidden = true;
+      tabletSection.hidden = true;
+      mobileSection.hidden = true;
+
+      if (window.innerWidth >= 1024) {
+        desktopSection.hidden = false;
+      } else if (window.innerWidth >= 768) {
+        tabletSection.hidden = false;
+      } else {
+        mobileSection.hidden = false;
+      }
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+  </script>
+</body>
+</html>

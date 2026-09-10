@@ -18,107 +18,221 @@
        tabla "Propiedades del contenedor" del recurso de Grid/Flexbox
        (semana_03_recurso_css_grid_flexbox_tailwind.md).
     ========================================== */
+
     .grid-container {
-
-      /* TODO 1: activa Grid en este contenedor.
-         Propiedad: display
-         Valor: grid
-      */
-    display:grid;
-      /* TODO 2: define 3 columnas de 200px cada una.
-         Propiedad: grid-template-columns
-         Pista: puedes escribir "200px 200px 200px" a mano,
-         o usar el atajo repeat(3, 200px) — ambos hacen lo mismo.
-      */
-    grid-template-columns: 100px 1fr 2fr;
-      /* TODO 3: agrega espacio entre las celdas, sin usar márgenes.
-         Propiedad: gap
-         Valor sugerido: 15px
-      */
-    gap:10px;
+        /* TODO 1: activa Grid en este contenedor.
+          Propiedad: display
+          Valor: grid
+        */
+      display:grid;
+        /* TODO 2: define 3 columnas de 200px cada una.
+          Propiedad: grid-template-columns
+          Pista: puedes escribir "200px 200px 200px" a mano,
+          o usar el atajo repeat(3, 200px) — ambos hacen lo mismo.
+        */
+      grid-template-columns: 100px 1fr 2fr;
+        /* TODO 3: agrega espacio entre las celdas, sin usar márgenes.
+          Propiedad: gap
+          Valor sugerido: 15px
+        */
+      gap:10px;
         /* Ya viene incluido, no lo toques: */
-        background-color: #ecf0f1;
-        padding: 15px;
-        border-radius: 8px;
-        }
+      background-color: #ecf0f1;
+      padding: 15px;
+      border-radius: 8px;
+    }
 
-        .grid-item {
-        background-color: #3498db;
-        color: white;
-        padding: 30px;
-        text-align: center;
-        font-size: 1.5rem;
-        border-radius: 6px;
-        }
+    .dark-mode .grid-container {
+      background-color: #2c3e50;
+    }
+    .grid-container-2 {
+      display:grid;
+      grid-template-columns: 100px 1fr 2fr;
+      gap:10px;
+      background-color: #e8d5c4;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .dark-mode .grid-container-2 {
+      background-color: #2c3e50;
+    }
+
+    .grid-container-3 {
+      display:grid;
+      grid-template-columns: 100px 1fr 2fr;
+      gap:10px;
+      background-color: lightcoral;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .dark-mode .grid-container-3 {
+      background-color: #2c3e50;
+    }
+
+    .grid-container-4 {
+      display:grid;
+      grid-template-columns: 100px 1fr 2fr;
+      gap:10px;
+      background-color: lightgreen;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .dark-mode .grid-container-4 {
+      background-color: #2c3e50;
+    }
+
+    .grid-item {
+      background-color: #3498db;
+      color: white;
+      padding: 30px;
+      text-align: center;
+      font-size: 1.5rem;
+      border-radius: 6px;
+    }
+
+    p {
+      color: #2ecc71;
+    }
+
+    h1 {
+      color: #3498db;
+    }
 
     /* TODO 4 (opcional, para quien termine antes): alinea el
-       contenido de cada celda al centro verticalmente.
-       Propiedad: align-items (va en .grid-container, no en .grid-item)
-       Valor: center
+      contenido de cada celda al centro verticalmente.
+      Propiedad: align-items (va en .grid-container, no en .grid-item)
+      Valor: center
     */
 
     @media (min-width: 500px) {
-    body {
-        background-color: gray; /* Verde = ya estamos en tablet */
-    }
-    .grid-item {
+      body {
+          background-color: gray; /* Verde = ya estamos en tablet */
+      }
+      .grid-item {
         background-color: lightgray;
         color: black;
         border-radius: 100px;
-    }
+      }
     }
         
         
     @media (min-width: 700px) {
-    body {
+      body {
         background-color: cyan; /* Verde = ya estamos en tablet */
-    }
-    .grid-item {
+      }
+      .grid-item {
         background-color: green;
         color: black;
-    }
+      }
     }
 
     body.dark-mode {
-        background-color: #1a1a1a;
-        color: white;
+      background-color: #1a1a1a;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <h1>Mi Primer Grid</h1>
-  <p style="margin: 20px 0;">Grid con 3 columnas de 200px cada una — completa los TODO del CSS.</p>
+  <h1 id="titulo">Mi Primer Grid</h1>
+  <p id="descripcion">Grid con 3 columnas de 200px cada una — completa los TODO del CSS.</p>
 
   <div class="grid-container">
-        <div class="grid-item">1</div>
-        <div class="grid-item">2</div>
-        <div class="grid-item">3</div>
-        <div class="grid-item">4</div>
-        <div class="grid-item">5</div>
-        <div class="grid-item">6</div>
-            <div class="grid-item">7</div>
-            <div class="grid-item">8</div>
-            <div id="demo" class="grid-item">9</div>
+    <div class="grid-item">1</div>
+    <div class="grid-item">2</div>
+    <div class="grid-item">3</div>
+    <div class="grid-item">4</div>
+    <div class="grid-item">5</div>
+    <div class="grid-item">6</div>
+      <div class="grid-item">7</div>
+      <div class="grid-item">8</div>
+      <div id="demo" class="grid-item">9</div>
   </div>
-  <button id="boton">Botón</button>
-    <button id="segundo">Botón 2</button>
+
+  <div class="grid-container-2">
+    <div class="grid-item">1</div>
+    <div class="grid-item">2</div>
+    <div class="grid-item">3</div>
+    <div class="grid-item">4</div>
+    <div class="grid-item">5</div>
+    <div class="grid-item">6</div>
+  </div>
+
+  <div class="grid-container-3">
+    <div class="grid-item">1</div>
+    <div class="grid-item">2</div>
+    <div class="grid-item">3</div>
+    <div class="grid-item">4</div>
+    <div class="grid-item">5</div>
+    <div class="grid-item">6</div>
+  </div>
+  
+<p>parrafo de prueba</p>
+
+  <div class="grid-container-4">
+    <div class="grid-item">1</div>
+    <div class="grid-item">2</div>
+    <div class="grid-item">3</div>
+    <div class="grid-item">4</div>
+    <div class="grid-item">5</div>
+    <div class="grid-item">6</div>
+  </div>
+
+  <button id="btn4">Desaparece clase</button>
+  <button id="btn1">algo</button>
+  <button id="btn2">dia/noche</button>
+
   <script>
     let txt = document.getElementById("demo");
     txt.textContent="Hola mundo"
     
-    let btnMsg = document.getElementById("boton");
+    let btnMsg = document.getElementById("btn1");
     btnMsg.addEventListener("click", function () {
       console.log("clic en el boton");
       txt.style.backgroundColor = "black";
       txt.textContent="funcionando";
     });
 
-    let tx2 = document.getElementById("segundo");
+    let tx2 = document.getElementById("btn2");
     tx2.addEventListener("click", function () {
       console.log("clic en el segundo");
       tx2.style.backgroundColor = "orange";
       document.body.classList.toggle("dark-mode");
     });
+
+    
+    const gc4 = document.querySelector('.grid-container-4');
+    const btn1 = document.getElementById("btn1");
+    const btn2 = document.getElementById("btn2");
+    const btn3 = document.getElementById("btn3");
+    const btn4 = document.getElementById("btn4");
+
+    const titulo = document.getElementById("titulo");
+    const descripcion = document.getElementById("descripcion");
+
+    btn4.addEventListener("click", function () {
+      alert("-_-");
+      gc4.style.display = "none";
+    });
+
+    function resize () {
+      if (window.innerWidth >= 1024) {
+        titulo.textContent = "modo desktop";
+        descripcion.textContent = ":)";
+      } else if (window.innerWidth >= 768) {
+        titulo.textContent = "modo tablet";
+        descripcion.textContent = "QUE SE NOTE LO QUE CAMBIEEEEEE";
+      } else {
+        titulo.textContent = "modo móvil";
+        descripcion.textContent = "Algo diferente";
+      }
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+
   </script>
 </body>
 </html>
