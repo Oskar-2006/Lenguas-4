@@ -27,6 +27,8 @@ const heroes = [
         universo: "DC Comics",
         niveldefuerza: 85,
         activo: true,
+        colorPrincipal: "#b8262f",
+        colorSecundario: "#f4c430",
     },
     {
         nombre: "Superman",
@@ -44,6 +46,8 @@ const heroes = [
         universo: "DC Comics",
         niveldefuerza: 99,
         activo: true,
+        colorPrincipal: "#2456c4",
+        colorSecundario: "#d21f2f",
     },
     {
         nombre: "Batman",
@@ -64,6 +68,8 @@ const heroes = [
         universo: "DC Comics",
         niveldefuerza: 60,
         activo: true,
+        colorPrincipal: "#4b5160",
+        colorSecundario: "#f2c14e",
     },
     {
         nombre: "Wonder Woman",
@@ -81,6 +87,8 @@ const heroes = [
         universo: "DC Comics",
         niveldefuerza: 93,
         activo: true,
+        colorPrincipal: "#c8262f",
+        colorSecundario: "#e8b649",
     },
     {
         nombre: "Spider-Man",
@@ -98,6 +106,8 @@ const heroes = [
         universo: "Marvel Comics",
         niveldefuerza: 65,
         activo: true,
+        colorPrincipal: "#c8202f",
+        colorSecundario: "#1c3f94",
     },
     {
         nombre: "Iron Man",
@@ -115,6 +125,8 @@ const heroes = [
         universo: "Marvel Comics",
         niveldefuerza: 78,
         activo: true,
+        colorPrincipal: "#a3202b",
+        colorSecundario: "#d4a017",
     },
     {
         nombre: "Captain America",
@@ -132,6 +144,8 @@ const heroes = [
         universo: "Marvel Comics",
         niveldefuerza: 72,
         activo: true,
+        colorPrincipal: "#2a4d94",
+        colorSecundario: "#c8202f",
     },
     {
         nombre: "Thor",
@@ -149,6 +163,8 @@ const heroes = [
         universo: "Marvel Comics",
         niveldefuerza: 97,
         activo: true,
+        colorPrincipal: "#a3202b",
+        colorSecundario: "#b08d3e",
     },
     {
         nombre: "Wolverine",
@@ -166,6 +182,8 @@ const heroes = [
         universo: "Marvel Comics",
         niveldefuerza: 75,
         activo: true,
+        colorPrincipal: "#f0c419",
+        colorSecundario: "#1c3f7a",
     },
     {
         nombre: "Green Lantern",
@@ -183,6 +201,8 @@ const heroes = [
         universo: "DC Comics",
         niveldefuerza: 80,
         activo: true,
+        colorPrincipal: "#1f9d55",
+        colorSecundario: "#9ad84b",
     },
     {
         nombre: "Black Panther",
@@ -200,6 +220,8 @@ const heroes = [
         universo: "Marvel Comics",
         niveldefuerza: 76,
         activo: true,
+        colorPrincipal: "#6c3fa8",
+        colorSecundario: "#b8bec9",
     },
     {
         nombre: "Aquaman",
@@ -217,6 +239,8 @@ const heroes = [
         universo: "DC Comics",
         niveldefuerza: 84,
         activo: true,
+        colorPrincipal: "#d9731c",
+        colorSecundario: "#1c8f8f",
     },
 ];
 
@@ -235,10 +259,41 @@ console.log("Universo del último héroe:", heroes[heroes.length - 1].universo);
 // los elementos DENTRO de cada carta usamos card.querySelector(), que
 // busca solo adentro de esa carta puntual y no en todo el documento.
 
+// convierte un color hex ("#rrggbb") a "r, g, b" para poder armar los
+// rgba() que usan --acento-tenue y --brillo-color con la opacidad que ya
+// tenian esas variables
+function hexARgb(hex) {
+    const numero = parseInt(hex.slice(1), 16);
+    const r = (numero >> 16) & 255;
+    const g = (numero >> 8) & 255;
+    const b = numero & 255;
+    return `${r}, ${g}, ${b}`;
+}
+
+// aplica los 2 colores del heroe (principal y secundario) como variables
+// CSS propias de esa carta: el principal reemplaza el amarillo por defecto,
+// el secundario reemplaza el rojo que aparecia al interactuar. el mecanismo
+// de hover (la clase .interactuando y el mousemove) no se toca, solo cambia
+// de donde sale el color
+function aplicarColoresHeroe(card, heroe) {
+    // se guardan en "-base" y "-hover" (no en --acento directo) porque un
+    // estilo inline siempre le gana a las reglas de la hoja de estilos: si
+    // pusieramos --acento aca, la regla ".card.interactuando" nunca podria
+    // sobreescribirlo al pasar el mouse
+    card.style.setProperty("--acento-base", heroe.colorPrincipal);
+    card.style.setProperty("--acento-claro-base", heroe.colorPrincipal);
+    card.style.setProperty("--acento-tenue-base", `rgba(${hexARgb(heroe.colorPrincipal)}, 0.25)`);
+    card.style.setProperty("--acento-hover", heroe.colorSecundario);
+    card.style.setProperty("--acento-claro-hover", heroe.colorSecundario);
+    card.style.setProperty("--acento-tenue-hover", `rgba(${hexARgb(heroe.colorSecundario)}, 0.35)`);
+    card.style.setProperty("--brillo-color", `rgba(${hexARgb(heroe.colorPrincipal)}, 0.35)`);
+}
+
 function crearCarta(heroe) {
     // se crea el div contenedor de la carta
     const card = document.createElement("div");
     card.className = "card";
+    aplicarColoresHeroe(card, heroe);
 
     // se arma todo el contenido de la carta a partir de las propiedades del heroe
     card.innerHTML = `
@@ -327,6 +382,8 @@ function activarEfectoMouse(card) {
         brillo.style.opacity = "1";
     });
 
+    // al sacar el mouse de la carta, se deshace el giro (vuelve a 0 grados)
+    // y se esconde el brillo, para que la carta quede como al principio
     card.addEventListener("mouseleave", () => {
         card.classList.remove("interactuando");
         card.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) scale(1)";
@@ -345,6 +402,12 @@ const modal = document.getElementById("modal");
 const modalCuerpo = document.getElementById("modal-cuerpo");
 
 function abrirModal(heroe) {
+    // el modal no es una .card, asi que no recibe --acento-base/-hover: se
+    // le pone directo el color principal del heroe en el que se hizo click
+    modal.style.setProperty("--acento", heroe.colorPrincipal);
+    modal.style.setProperty("--acento-claro", heroe.colorPrincipal);
+    modal.style.setProperty("--acento-tenue", `rgba(${hexARgb(heroe.colorPrincipal)}, 0.25)`);
+
     modalCuerpo.innerHTML = `
         <img class="modal-imagen ${heroe.imagenFondoBlanco ? "imagen--fondo-blanco" : ""}" src="${heroe.imagen}" alt="Logo de ${heroe.nombre}">
         <h2 class="modal-nombre">${heroe.nombre}</h2>

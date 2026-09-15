@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <!-- hace que en el celular la pagina se vea a su ancho real, no como una version reducida de una pagina de escritorio -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Objetos - Heroes</title>
     <link rel="stylesheet" href="style.css">
@@ -13,9 +14,12 @@
 
     <!-- modal de detalle: uno solo, reutilizado para cualquier heroe en el que se haga click -->
     <div id="modal" class="modal oculto">
+        <!-- capa oscura detras del cuadro del modal; al hacer click aca tambien se cierra -->
         <div class="modal-fondo"></div>
         <div class="modal-contenido">
+            <!-- boton "x" para cerrar el modal a mano -->
             <button class="modal-cerrar" aria-label="Cerrar">&times;</button>
+            <!-- vacio a proposito: el JS llena esto con los datos del heroe en el que se hizo click -->
             <div id="modal-cuerpo"></div>
         </div>
     </div>
