@@ -24,3 +24,10 @@ Lo más difícil fue entender `addEventListener`: cómo un elemento del DOM "esc
 de clic y dispara una función en respuesta, en vez de que el código simplemente se ejecute de
 arriba a abajo. También aprendí que cualquier elemento (no solo `<button>`) puede escuchar
 clics, y que un `classList.toggle()` no hace nada visible si la clase CSS no está definida.
+
+## 2026-09-15
+
+Sesión de repaso, sin contenido nuevo de clase: seguí trabajando sobre el ejercicio de cartas
+de superhéroes (`INPUT/codigo/Css1/objetos-1/`) reforzando lo ya visto — variables CSS, cómo un
+estilo inline le gana a una regla de la hoja de estilos, y cómo se arma el HTML de una carta
+desde un objeto en JS.

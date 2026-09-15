@@ -2,7 +2,7 @@
 // ARRAY DE HEROES
 // ============================================================
 // antes teniamos un solo objeto "heroe". ahora tenemos un ARRAY que
-// contiene 12 objetos "heroe" (uno por cada elemento). todos los objetos
+// contiene 10 objetos "heroe" (uno por cada elemento). todos los objetos
 // tienen las mismas propiedades (nombre, imagen, edad, poderes, etc.)
 // para que la misma plantilla de carta sirva para cualquiera de ellos.
 //
@@ -70,44 +70,6 @@ const heroes = [
         activo: true,
         colorPrincipal: "#4b5160",
         colorSecundario: "#f2c14e",
-    },
-    {
-        nombre: "Wonder Woman",
-        imagen: "../IMG objetos-1/wonderwoman.png",
-        edad: 3000,
-        poderes: [
-            { nombre: "Superfuerza", nivel: 92 },
-            { nombre: "Vuelo", nivel: 80 },
-            { nombre: "Lazo de la verdad", nivel: 88 },
-            { nombre: "Combate cuerpo a cuerpo", nivel: 90 },
-            { nombre: "Reflejos amazónicos", nivel: 85 },
-        ],
-        descripcion: "Wonder Woman es una princesa amazona con fuerza y habilidades de combate sobrehumanas, embajadora de paz entre Themyscira y el mundo.",
-        bando: "Heroe",
-        universo: "DC Comics",
-        niveldefuerza: 93,
-        activo: true,
-        colorPrincipal: "#c8262f",
-        colorSecundario: "#e8b649",
-    },
-    {
-        nombre: "Spider-Man",
-        imagen: "../IMG objetos-1/spiderman.svg",
-        edad: 18,
-        poderes: [
-            { nombre: "Sentido arácnido", nivel: 85 },
-            { nombre: "Superfuerza", nivel: 70 },
-            { nombre: "Agilidad", nivel: 90 },
-            { nombre: "Lanzar telarañas", nivel: 80 },
-            { nombre: "Adherencia a superficies", nivel: 88 },
-        ],
-        descripcion: "Spider-Man es Peter Parker, un joven que obtuvo habilidades arácnidas tras ser picado por una araña radiactiva.",
-        bando: "Heroe",
-        universo: "Marvel Comics",
-        niveldefuerza: 65,
-        activo: true,
-        colorPrincipal: "#c8202f",
-        colorSecundario: "#1c3f94",
     },
     {
         nombre: "Iron Man",
@@ -253,7 +215,7 @@ console.log("Universo del último héroe:", heroes[heroes.length - 1].universo);
 // PLANTILLA REUTILIZABLE DE CARTA
 // ============================================================
 // antes usabamos document.getElementById() porque solo existia UNA carta
-// en el html, con id unicos (#nombre, #edad, etc). ahora vamos a crear 12
+// en el html, con id unicos (#nombre, #edad, etc). ahora vamos a crear 10
 // cartas iguales en estructura, y un id no puede repetirse en el mismo
 // documento HTML. por eso la plantilla usa solo .clases, y para buscar
 // los elementos DENTRO de cada carta usamos card.querySelector(), que
@@ -352,7 +314,7 @@ function crearListaPoderes(poderes) {
 // EFECTO DE CARTA TIPO POKEMON (giro 3D + brillo que sigue el mouse)
 // ============================================================
 // se recibe la carta como parametro para que el efecto funcione en
-// cualquiera de las 12 cartas, no solo en una carta fija
+// cualquiera de las 10 cartas, no solo en una carta fija
 
 function activarEfectoMouse(card) {
     const brillo = card.querySelector(".brillo");

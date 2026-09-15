@@ -31,7 +31,7 @@ body {
     margin: 0;
 }
 
-/* contenedor de las 12 cartas: mobile-first, 1 columna y va agregando mas */
+/* contenedor de las 10 cartas: mobile-first, 1 columna y va agregando mas */
 .contenedor-cartas {
     display: grid;
     grid-template-columns: 1fr;
