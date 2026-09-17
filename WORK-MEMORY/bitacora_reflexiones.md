@@ -24,3 +24,11 @@ Lo más difícil fue entender `addEventListener`: cómo un elemento del DOM "esc
 de clic y dispara una función en respuesta, en vez de que el código simplemente se ejecute de
 arriba a abajo. También aprendí que cualquier elemento (no solo `<button>`) puede escuchar
 clics, y que un `classList.toggle()` no hace nada visible si la clase CSS no está definida.
+
+## 2026-09-10
+
+Dificultad media, pero en general bien. Seguí trabajando sobre `Index.html` (más grids, dark
+mode extendido a varios contenedores) y armé una landing page nueva (`3.html`) con secciones
+que se muestran u ocultan según el tamaño de pantalla. También tocó resolver un conflicto de
+merge en Git porque había trabajado el mismo archivo en dos sesiones distintas — combinar
+ambas versiones sin perder ninguna.
