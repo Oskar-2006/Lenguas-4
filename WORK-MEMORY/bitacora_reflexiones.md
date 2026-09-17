@@ -39,3 +39,10 @@ Sesión de repaso, sin contenido nuevo de clase: seguí trabajando sobre el ejer
 de superhéroes (`INPUT/codigo/Css1/objetos-1/`) reforzando lo ya visto — variables CSS, cómo un
 estilo inline le gana a una regla de la hoja de estilos, y cómo se arma el HTML de una carta
 desde un objeto en JS.
+
+## 2026-09-17
+
+Trabajé sobre el ejercicio de arrays (`INPUT/codigo/Css1/Arrays/ar1/arr2.html`): agregué botones
+para mostrar la lista y buscar un elemento, y corregí errores de código (un typo en un nombre de
+método y un `pop()` que debía ser `shift()`). Aprendí que `indexOf()` es importante de cara al
+examen que viene, y reforcé cómo se declaran y usan funciones en JS.
