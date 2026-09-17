@@ -1,0 +1,403 @@
+/* variables globales de color: antes vivian solo dentro de .card, pero el
+   modal de detalle tambien las necesita y no es una carta */
+:root {
+    /* valores por defecto de respaldo (fallback). estos casi no se ven en
+       pantalla: cada carta trae los suyos propios (ver --acento-base/-hover
+       mas abajo, que el JS llena con el color del heroe) */
+    --acento: #e8b64d;
+    --acento-claro: #f5cf87;
+    --acento-tenue: rgba(232, 182, 77, 0.25);
+    --acento-hover: #b23a3a;
+    --acento-claro-hover: #e69a9a;
+    --acento-tenue-hover: rgba(178, 58, 58, 0.35);
+    --brillo-color: rgba(255, 221, 87, 0.35);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #10141c;
+    /* rayas diagonales muy sutiles (4% de opacidad) para darle textura
+       al fondo oscuro sin que compita con las cartas */
+    background-image: repeating-linear-gradient(
+        -20deg,
+        rgba(245, 207, 135, 0.04) 0px,
+        rgba(245, 207, 135, 0.04) 2px,
+        transparent 2px,
+        transparent 40px
+    );
+    min-height: 100vh;
+    padding: 24px 16px;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* contenedor de las 10 cartas: mobile-first, 1 columna y va agregando mas */
+.contenedor-cartas {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+@media (min-width: 700px) {
+    .contenedor-cartas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1300px) {
+    .contenedor-cartas {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* mobile: dos columnas lado a lado, division vertical */
+.card {
+    position: relative;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 16px;
+    background-color: #1b2230;
+    border-left: 4px solid var(--acento);
+    border-radius: 4px 16px 4px 4px;
+    /* le corta una esquina a la carta (abajo a la izquierda), le da la forma
+       de "carta de coleccion" en vez de un rectangulo comun */
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+    padding: 20px 18px 34px 16px;
+    width: 100%;
+    max-width: 300px;
+    box-sizing: border-box;
+    color: #e8ecf1;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    /* transform: para el giro 3D del mouse (index.js). border-color: para que
+       el cambio de color al interactuar no sea brusco */
+    transition: transform 0.15s ease-out, border-color 0.2s ease-out;
+    /* aca es donde --acento (el color "activo" de la carta) toma el valor
+       normal del heroe. --acento-base lo pone el JS con el color principal
+       de cada heroe (colorPrincipal) */
+    --acento: var(--acento-base);
+    --acento-claro: var(--acento-claro-base);
+    --acento-tenue: var(--acento-tenue-base);
+}
+
+/* la clase "interactuando" la agrega el JS mientras el mouse esta encima de
+   la carta (ver activarEfectoMouse en index.js). mientras esta activa, se
+   sobreescriben las mismas 3 variables con el color secundario del heroe
+   (--acento-hover, que el JS llena con colorSecundario) */
+.card.interactuando {
+    --acento: var(--acento-hover);
+    --acento-claro: var(--acento-claro-hover);
+    --acento-tenue: var(--acento-tenue-hover);
+}
+
+.seccion-imagen {
+    text-align: center;
+}
+
+.imagen {
+    width: 56px;
+    display: block;
+    margin: 0 auto 12px auto;
+    /* la duracion larga (2s) es a proposito: hace que el logo "flote" lento
+       al agrandarse en el hover, en vez de saltar de golpe */
+    transition: transform 2s ease;
+}
+
+/* la imagen de Batman es un .jpg con fondo blanco solido (no transparente
+   como el resto de los iconos). "multiply" fusiona ese blanco con el fondo
+   oscuro de la carta, simulando transparencia sin editar el archivo.
+   Se aplica solo aca, aplicarlo a .imagen en general oscurecería tambien
+   los iconos que ya tienen fondo transparente. */
+.imagen--fondo-blanco {
+    mix-blend-mode: multiply;
+}
+
+/* el logo del heroe se agranda al pasar el mouse por cualquier parte de la
+   carta (no hace falta pasar el mouse justo por encima del logo) */
+.card:hover .imagen {
+    transform: scale(1.5);
+}
+
+/* la franja de luz diagonal que "sigue" al mouse. arranca invisible
+   (opacity: 0) y en reposo tiene el gradiente de este CSS, pero en cuanto
+   hay un mousemove, el JS le pisa el "background" con uno nuevo calculado
+   segun la posicion del cursor (ver activarEfectoMouse en index.js) */
+.brillo {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 45%, var(--brillo-color) 50%, transparent 55%);
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
+    /* para que la carta siga recibiendo los clicks/mousemove a traves de esta capa */
+    pointer-events: none;
+}
+
+.descripcion {
+    font-size: 0.78rem;
+    color: #b7c0cf;
+    line-height: 1.4;
+    text-align: left;
+}
+
+/* la linea vertical que separa la imagen (izquierda) de los datos (derecha) */
+.seccion-datos {
+    padding-left: 16px;
+    border-left: 1px solid var(--acento-tenue);
+    transition: border-color 0.2s ease-out;
+}
+
+.nombre {
+    margin: 0 0 10px 0;
+    font-size: 1.15rem;
+    letter-spacing: 1px;
+    color: var(--acento-claro);
+    transition: color 0.2s ease-out;
+}
+
+/* las 5 lineas de datos (edad, bando, universo, fuerza, activo) comparten
+   el mismo tamaño y color de texto base */
+.edad,
+.bando,
+.universo,
+.fuerza,
+.activo {
+    margin: 0 0 6px 0;
+    font-size: 0.78rem;
+    color: #b7c0cf;
+}
+
+/* dentro de cada linea de dato hay 2 <span>: la etiqueta ("Edad:") y el
+   valor. este selector agarra solo el primer <span> (la etiqueta) para
+   pintarlo con el color de acento del heroe y ponerlo en negrita */
+.edad span:first-child,
+.bando span:first-child,
+.universo span:first-child,
+.fuerza span:first-child,
+.activo span:first-child {
+    color: var(--acento);
+    font-weight: bold;
+    transition: color 0.2s ease-out;
+}
+
+/* grilla de 2 columnas para los poderes del heroe (nombre + barra) */
+.poderes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 12px;
+    margin: 12px 0 0 0;
+    padding: 12px 0 0 0;
+    list-style: none;
+    border-top: 1px solid var(--acento-tenue);
+    transition: border-color 0.2s ease-out;
+}
+
+.poderes li {
+    margin: 0;
+}
+
+.poder-nombre {
+    display: block;
+    font-size: 0.68rem;
+    color: #b7c0cf;
+    margin-bottom: 4px;
+}
+
+/* el "riel" vacio de la barra de poder (el fondo gris/amarillento) */
+.poder-barra {
+    width: 100%;
+    height: 5px;
+    background-color: rgba(232, 182, 77, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+/* el relleno de la barra: su ancho lo pone el JS en linea (style="width: X%")
+   segun el "nivel" de cada poder, este CSS solo define su color y forma */
+.poder-barra-relleno {
+    height: 100%;
+    background-color: var(--acento);
+    border-radius: 3px;
+    transition: background-color 0.2s ease-out;
+}
+
+/* desktop: dos secciones lado a lado dentro de cada carta (ya no es una sola
+   carta gigante centrada, ahora hay varias carta por fila, asi que los
+   tamaños son moderados en vez de ocupar media pantalla) */
+@media (min-width: 700px) {
+    .card {
+        grid-template-columns: 1fr 1fr;
+        column-gap: 24px;
+        row-gap: 0;
+        padding: 28px;
+        max-width: 100%;
+    }
+
+    .seccion-imagen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .imagen {
+        width: 96px;
+        margin-bottom: 16px;
+    }
+
+    .descripcion {
+        font-size: 0.85rem;
+        text-align: center;
+    }
+
+    /* el borde separador ya es border-left desde mobile (la carta siempre
+       tiene imagen y datos en columnas lado a lado). aca solo se ajusta el
+       padding y se asegura border-top: none por si algun estilo lo pisara */
+    .seccion-datos {
+        padding-top: 0;
+        padding-left: 24px;
+        border-top: none;
+        border-left: 1px solid var(--acento-tenue);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .nombre {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+
+    .edad,
+    .bando,
+    .universo,
+    .fuerza,
+    .activo {
+        font-size: 0.82rem;
+        margin-bottom: 8px;
+    }
+
+    .poderes {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 12px;
+        padding-top: 12px;
+    }
+
+    .poder-nombre {
+        font-size: 0.72rem;
+    }
+
+    .poder-barra {
+        height: 6px;
+    }
+}
+
+/* ============================================================
+   MODAL DE DETALLE: se abre al hacer click en una carta
+   ============================================================ */
+
+/* capa que cubre toda la pantalla y centra el cuadro del modal adentro */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+/* la clase que el JS agrega/quita (cerrarModal/abrirModal) para
+   mostrar u ocultar el modal entero */
+.modal.oculto {
+    display: none;
+}
+
+/* fondo oscuro semitransparente detras del cuadro, para resaltarlo */
+.modal-fondo {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* el cuadro del modal en si. el color del borde (--acento) lo pone el JS
+   en linea con el colorPrincipal del heroe al abrirlo (ver abrirModal) */
+.modal-contenido {
+    position: relative;
+    background-color: #1b2230;
+    border-left: 4px solid var(--acento);
+    border-radius: 4px 16px 4px 4px;
+    padding: 32px;
+    width: 100%;
+    max-width: 420px;
+    /* si el heroe tiene muchos poderes, el modal no crece sin limite:
+       se pone scroll interno en vez de salirse de la pantalla */
+    max-height: 85vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.modal-cerrar {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: #b7c0cf;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.modal-cerrar:hover {
+    color: var(--acento);
+}
+
+.modal-imagen {
+    display: block;
+    width: 96px;
+    margin: 0 auto 16px auto;
+}
+
+.modal-nombre {
+    margin: 0 0 12px 0;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    color: var(--acento-claro);
+    text-align: center;
+}
+
+.modal-descripcion {
+    font-size: 0.85rem;
+    color: #b7c0cf;
+    line-height: 1.5;
+    text-align: center;
+    margin: 0 0 16px 0;
+}
+
+/* grilla de 2 columnas con los datos del heroe (edad, bando, universo, etc) */
+.modal-datos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--acento-tenue);
+    border-bottom: 1px solid var(--acento-tenue);
+    margin-bottom: 16px;
+}
+
+.modal-datos p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #b7c0cf;
+}
+
+/* el <span> con la etiqueta ("Edad:", "Bando:", etc) dentro de cada dato */
+.modal-datos span {
+    color: var(--acento);
+    font-weight: bold;
+}

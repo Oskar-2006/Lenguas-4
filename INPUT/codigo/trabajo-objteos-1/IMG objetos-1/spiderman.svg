@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+	 viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#4F5D73;}
+	.st1{fill:#0A0A0A;}
+	.st2{fill:none;stroke:#0A0A0A;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+</style>
+<circle class="st0" cx="32" cy="32" r="32"/>
+<g>
+	<path class="st2" d="M25,22 L16,14 L9,9"/>
+	<path class="st2" d="M24,29 L11,24 L4,21"/>
+	<path class="st2" d="M24,35 L11,39 L4,44"/>
+	<path class="st2" d="M25,41 L17,49 L11,56"/>
+	<path class="st2" d="M39,22 L48,14 L55,9"/>
+	<path class="st2" d="M40,29 L53,24 L60,21"/>
+	<path class="st2" d="M40,35 L53,39 L60,44"/>
+	<path class="st2" d="M39,41 L47,49 L53,56"/>
+	<ellipse class="st1" cx="32" cy="24" rx="5" ry="6"/>
+	<ellipse class="st1" cx="32" cy="38" rx="9" ry="12"/>
+</g>
+</svg>

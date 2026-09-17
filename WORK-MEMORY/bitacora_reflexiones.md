@@ -32,3 +32,10 @@ mode extendido a varios contenedores) y armé una landing page nueva (`3.html`) 
 que se muestran u ocultan según el tamaño de pantalla. También tocó resolver un conflicto de
 merge en Git porque había trabajado el mismo archivo en dos sesiones distintas — combinar
 ambas versiones sin perder ninguna.
+
+## 2026-09-15
+
+Sesión de repaso, sin contenido nuevo de clase: seguí trabajando sobre el ejercicio de cartas
+de superhéroes (`INPUT/codigo/Css1/objetos-1/`) reforzando lo ya visto — variables CSS, cómo un
+estilo inline le gana a una regla de la hoja de estilos, y cómo se arma el HTML de una carta
+desde un objeto en JS.
