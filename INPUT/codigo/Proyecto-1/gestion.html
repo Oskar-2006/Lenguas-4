@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- hace que en el celular la pagina se vea a su ancho real, no como una version reducida de una pagina de escritorio -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión - Heroes</title>
+    <!-- misma hoja de estilos que index.html: asi las dos paginas comparten
+         fondo, tipografia y variables de color (--acento, --acento-tenue, etc.) -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- layout de 2 columnas: el sidebar fijo a la izquierda y el contenido
+         a la derecha. en celular el CSS lo colapsa a una sola columna -->
+    <div class="gestion-layout">
+
+        <!-- ============================================================
+             SIDEBAR: los 4 procesos CRUD + mostrar todos
+             ============================================================
+             son <button> y no <a> porque no navegan a otra pagina: todos
+             cambian el contenido de #gestion-contenido en esta misma.
+             el data-seccion es el que lee gestion.js para saber cual se
+             apreto, asi no hace falta un id distinto por cada boton -->
+        <nav class="sidebar">
+            <h2 class="sidebar-titulo">Gestión</h2>
+            <ul class="sidebar-lista">
+                <li>
+                    <button class="sidebar-item activa" data-seccion="mostrar">Mostrar todos</button>
+                </li>
+                <li>
+                    <button class="sidebar-item" data-seccion="crear">Crear</button>
+                </li>
+                <li>
+                    <button class="sidebar-item" data-seccion="leer">Leer / Buscar</button>
+                </li>
+                <li>
+                    <button class="sidebar-item" data-seccion="actualizar">Actualizar</button>
+                </li>
+                <li>
+                    <button class="sidebar-item" data-seccion="eliminar">Eliminar</button>
+                </li>
+            </ul>
+
+            <!-- borra lo guardado en localStorage y vuelve a los 10 heroes
+                 de data.js. hace falta porque, una vez que hay datos
+                 guardados, editar data.js a mano ya no se ve reflejado -->
+            <div class="sidebar-pie">
+                <button type="button" id="restablecer" class="boton-peligro">Restablecer datos</button>
+            </div>
+        </nav>
+
+        <!-- columna derecha: encabezado + el contenido que cambia -->
+        <div class="gestion-principal">
+
+            <header class="gestion-encabezado">
+                <h1 class="gestion-titulo">Gestión de héroes</h1>
+                <a class="gestion-volver" href="index.html">← Volver a las cartas</a>
+            </header>
+
+            <!-- contenedor vacio a proposito: gestion.js lo llena segun el
+                 boton del sidebar que este activo -->
+            <main id="gestion-contenido" class="gestion-contenido"></main>
+
+        </div>
+
+    </div>
+
+    <!-- modal de detalle: el mismo bloque que tiene index.html, porque
+         cards.js lo busca con getElementById apenas se ejecuta. si esta
+         pagina no lo tuviera, cards.js daria error y no se cargaria nada -->
+    <div id="modal" class="modal oculto">
+        <!-- capa oscura detras del cuadro del modal; al hacer click aca tambien se cierra -->
+        <div class="modal-fondo"></div>
+        <div class="modal-contenido">
+            <!-- boton "x" para cerrar el modal a mano -->
+            <button class="modal-cerrar" aria-label="Cerrar">&times;</button>
+            <!-- vacio a proposito: cards.js llena esto con los datos del heroe -->
+            <div id="modal-cuerpo"></div>
+        </div>
+    </div>
+
+    <!-- el orden importa, cada archivo necesita al anterior:
+         data.js    declara "heroes" (los datos iniciales)
+         storage.js lee localStorage y arma "listaHeroes" a partir de esos datos
+         cards.js   define crearCarta() y el modal, que usa la seccion Leer
+         gestion.js dibuja las secciones y modifica "listaHeroes" -->
+    <script src="data.js"></script>
+    <script src="storage.js"></script>
+    <script src="cards.js"></script>
+    <script src="gestion.js"></script>
+
+</body>
+</html>
