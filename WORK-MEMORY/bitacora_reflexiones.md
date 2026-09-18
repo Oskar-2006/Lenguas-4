@@ -46,3 +46,18 @@ Trabajé sobre el ejercicio de arrays (`INPUT/codigo/Css1/Arrays/ar1/arr2.html`)
 para mostrar la lista y buscar un elemento, y corregí errores de código (un typo en un nombre de
 método y un `pop()` que debía ser `shift()`). Aprendí que `indexOf()` es importante de cara al
 examen que viene, y reforcé cómo se declaran y usan funciones en JS.
+
+## 2026-09-18
+
+Hoy se aprendió a crear un gestor de arrays para una página HTML. Fue algo enredado, pero nada
+que pensar detenidamente no solucione.
+
+Arranqué `INPUT/codigo/Proyecto-1/` separando los datos (`data.js`) de la lógica (`index.js`), y
+terminé con un CRUD completo en `gestion.html`: crear, leer/buscar, actualizar y eliminar héroes.
+También agregué al ejercicio de arrays de clase los botones de eliminar y cambiar elemento.
+
+Lo que más costó entender fue por qué un héroe creado desde `gestion.html` no aparecía en
+`index.html`: el `push()` estaba bien, pero los cambios vivían solo en memoria. Un archivo `.js`
+no se puede reescribir desde el navegador, y cada página HTML arranca un contexto de JavaScript
+nuevo. Se resolvió con `localStorage` (`storage.js`), guardando el array como texto con
+`JSON.stringify` y reconstruyéndolo con `JSON.parse`.
