@@ -11,6 +11,8 @@
   <button id="btn3">Eliminar Primero</button>
   <button id="btn4">Mostrar Lista</button>
   <button id="btn5">Buscar</button>
+  <button id="btn6">Eliminar Elemento</button>
+  <button id="btn7">Cambiar Elemento</button>
   <p id="resultado"></p>
   <ul id="lista"></ul>
 
@@ -24,6 +26,8 @@
     const btn3 = document.getElementById('btn3');
     const btn4 = document.getElementById('btn4');
     const btn5 = document.getElementById('btn5');
+    const btn6 = document.getElementById('btn6');
+    const btn7 = document.getElementById('btn7');
     const resultado = document.getElementById("resultado");
     const lista = document.getElementById("lista");
 
@@ -62,6 +66,7 @@
 
     function mostrarLista() {
         lista.innerHTML = "";
+
         arr.forEach(function (item) {
             let li = document.createElement("li");
             li.textContent = item;
@@ -74,6 +79,7 @@
     function buscarElemento() {
         let valorBuscado = input.value.trim().toLowerCase();
         let indice = arr.indexOf(valorBuscado);
+
         if (indice !== -1) {
             resultado.textContent = "Elemento encontrado en la posicion: " + indice;
         } else {
@@ -82,6 +88,59 @@
     }
 
     btn5.addEventListener("click", buscarElemento);
+
+
+    function eliminarElemento() {
+        let valorBuscado = input.value.trim().toLowerCase();
+        if (valorBuscado == ""){
+            resultado.textContent = "Por favor, ingrese un valor para eliminar.";
+            return;
+        }
+
+        let indice = arr.indexOf(valorBuscado);
+        if (indice !== -1) {
+            resultado.textContent = "Elemento eliminados de la posicion: " + indice;
+            arr.splice(indice, 1);
+            mostrarLista();
+        } else {
+            resultado.textContent = "Elemento no encontrado en el arreglo: ";
+        }
+    }
+
+    btn6.addEventListener("click", eliminarElemento);
+
+    function cambiarElemento() {
+        let valorBuscado = input.value.trim().toLowerCase();
+        if (valorBuscado == ""){
+            resultado.textContent = "Por favor, ingrese el valor que quiere cambiar.";
+            return;
+        }
+
+        let indice = arr.indexOf(valorBuscado);
+        if (indice !== -1) {
+            let respuesta = prompt("Escriba el valor nuevo para reemplazar a: " + valorBuscado);
+            if (respuesta === null) {
+                resultado.textContent = "Cambio cancelado.";
+                return;
+            }
+
+            let valorNuevo = respuesta.trim().toLowerCase();
+            if (valorNuevo == ""){
+                resultado.textContent = "Por favor, ingrese el valor nuevo.";
+                return;
+            }
+
+            arr[indice] = valorNuevo;
+            resultado.textContent = "Elemento cambiado en la posicion " + indice + ": " + valorBuscado + " por " + valorNuevo;
+            mostrarLista();
+        } else {
+            resultado.textContent = "Elemento no encontrado en el arreglo: " + valorBuscado;
+        }
+    }
+
+    btn7.addEventListener("click", cambiarElemento);
+
+    mostrarLista();
 
   </script>
 </body>
