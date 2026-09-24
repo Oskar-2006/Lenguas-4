@@ -3,9 +3,10 @@
 **Proyecto:** cartas de héroes renderizadas desde JavaScript (`objetos-1/`)
 **CodePen:** https://codepen.io/editor/Oskar-2006/pen/01a0a6c9-58bd-7da8-ad62-89c2e838d711
 
-> Los datos de cada entrada salen del código y del historial de git del repositorio.
-> Donde dice **✏️ Completar**, escribe con tus palabras qué le pediste a la IA o qué probaste tú:
-> eso no quedó registrado en ningún archivo.
+> Los datos de cada entrada salen del código, del historial de git y de la conversación con la IA
+> (Claude) del 2026-09-15, en la que se hizo la V2. Los pedidos entre comillas son textuales.
+> La conversación de la V1 (2026-09-11) no quedó guardada; donde dice **✏️ Completar**, escribe
+> con tus palabras qué le pediste a la IA o qué probaste tú.
 
 ---
 
@@ -33,13 +34,16 @@ El historial de git registra que en V1 y V2 se trabajó con IA (Claude).
 - **¿Se quedó?** No. Se reemplazó en V2. Los valores siguen en `:root` como respaldo (fallback).
 
 ### 1.2 Colores propios por héroe (V2) — ✅ se quedó
-- **Qué le pedí a la IA / qué probé:** ✏️ Completar
+- **Qué le pedí a la IA (2026-09-15):**
+  > "quiero que las cards tengan colores personalizados para cada heroe, cada card debe de tener maximo 2 colores, intercambia los colores rojo y amarillo que ya existen en cada card, por los colores caracteristicos o principales de cada heroe, solo cambia los colores, no modifiques ningun hover ni nada"
+- **Primer resultado:** cada carta tomó sus colores, pero **el hover dejó de cambiar al color secundario**. Se lo dije a la IA:
+  > "los colores cambian con el hove al color secundario, ahora los colores no cambin con hover, arreglalo"
 - **Cómo quedó en el código:**
   - Cada objeto tiene `colorPrincipal` y `colorSecundario` (por ejemplo, Flash `#b8262f` / `#f4c430`).
   - La función `aplicarColoresHeroe()` los convierte en variables CSS de cada carta (`--acento-base`, `--acento-hover`…).
   - La función `hexARgb()` convierte el hex a `r, g, b` para armar las versiones transparentes con `rgba()`.
   - Al pasar el mouse, la clase `.interactuando` cambia el color principal por el secundario.
-- **Problema que apareció:** si el JS ponía `--acento` directo en línea (`style`), la regla `.card.interactuando` ya no podía cambiarlo, porque un estilo inline le gana a la hoja de estilos. Por eso se guardan en variables `-base` y `-hover`.
+- **Por qué falló el hover:** el JS ponía `--acento` directo en línea (`style`), y un estilo inline le gana a la regla `.card.interactuando` de la hoja de estilos. La solución fue guardar los colores en variables `-base` y `-hover`, y dejar que el CSS elija cuál usar según la clase.
 - **¿Se quedó?** Sí.
 
 ### 1.3 Fondo de la página — ✅ se quedó
@@ -95,7 +99,7 @@ El historial de git registra que en V1 y V2 se trabajó con IA (Claude).
 ### 4.2 Franja de brillo que sigue al mouse — ✅ se quedó (con una observación)
 - **Qué le pedí a la IA / qué probé:** ✏️ Completar
 - **Cómo quedó:** un `div.brillo` con `linear-gradient` a 115° que el JS mueve según el cursor, desplazado 25 % para que no quede justo debajo. Tiene `pointer-events: none` para no bloquear los clics.
-- **Observación:** en V2 se creó `--brillo-color` con el color de cada héroe, pero durante el `mousemove` el JS reemplaza el fondo por un rojo fijo (`rgba(178, 58, 58, 0.45)`). Como en reposo el brillo está oculto (`opacity: 0`), el color por héroe no se llega a ver.
+- **Observación:** en V2 se creó `--brillo-color` con el color de cada héroe, pero durante el `mousemove` el JS reemplaza el fondo por un rojo fijo (`rgba(178, 58, 58, 0.45)`). Como en reposo el brillo está oculto (`opacity: 0`), el color por héroe no se llega a ver. Esto pasó porque en el pedido de colores dije "no modifiques ningun hover ni nada", así que la IA no tocó la función `activarEfectoMouse()`, que es donde se pinta el brillo.
 - **¿Se quedó?** Sí.
 
 ### 4.3 Logo que se agranda lento — ✅ se quedó
@@ -117,14 +121,19 @@ El historial de git registra que en V1 y V2 se trabajó con IA (Claude).
 - **¿Se quedó?** Sí.
 
 ### 5.2 Logo propio de Spider-Man (V2) — ❌ no se usa al final
-- **Qué le pedí a la IA / qué probé:** ✏️ Completar
-- **Resultado:** en V2 se cambió `spiderman.svg` por un logo propio.
+- **Qué le pedí a la IA (2026-09-15):**
+  > "cambia el logo de spiderman, solo el logo de este heroe"
+- **Resultado:** el `spiderman.svg` original no era el emblema de la araña, sino un texto dibujado (un wordmark). La IA lo reemplazó por un ícono propio con el mismo estilo plano que los demás: círculo de fondo `#4F5D73`, una araña negra de 8 patas al centro y el mismo `viewBox` de 64×64.
+- **Pregunta que hice:** "los demas logos los creaste o buscaste?". Respuesta: los demás ya estaban en `IMG objetos-1/` desde antes y solo se creó el de Spider-Man.
 - **¿Se quedó?** No. Spider-Man salió de la colección en V3 para dejar 10 objetos. El archivo sigue en `IMG objetos-1/`.
 
 ---
 
 ## 6. Modal de detalle — ✅ se quedó
-- **Qué le pedí a la IA / qué probé:** ✏️ Completar
+- **Estructura del modal (V1):** ✏️ Completar
+- **Qué le pedí a la IA sobre su color (2026-09-15):** después de poner colores por héroe, el modal seguía amarillo:
+  > "cuando le das click a la card se abre con todas las propiedas, pero los colore siguen siendo amarillo, cambia el color de las cards al darle click al color principal de cada heroe"
+- **Por qué pasaba:** el modal no es una `.card`, así que nunca recibía las variables de color del héroe.
 - **Cómo quedó:**
   - Un solo modal reutilizable. Al abrirlo, el JS le pone el `colorPrincipal` del héroe.
   - Tiene fondo oscuro al 70 %, `max-height: 85vh` con scroll interno, y se cierra con la X, clic afuera o Escape.

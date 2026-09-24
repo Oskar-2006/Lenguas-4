@@ -61,3 +61,8 @@ Lo que más costó entender fue por qué un héroe creado desde `gestion.html` n
 no se puede reescribir desde el navegador, y cada página HTML arranca un contexto de JavaScript
 nuevo. Se resolvió con `localStorage` (`storage.js`), guardando el array como texto con
 `JSON.stringify` y reconstruyéndolo con `JSON.parse`.
+## 2026-09-19
+
+Al revisar la tarea de la colección de objetos contra el enunciado, tuve que ajustar el trabajo
+ya terminado (bajar de 12 a 10 héroes y armar la bitácora de estilos). Aprendí a leer las
+instrucciones primero y luego hacer el trabajo, para no tener que modificarlo al terminar.
