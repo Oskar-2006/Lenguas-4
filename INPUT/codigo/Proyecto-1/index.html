@@ -9,6 +9,20 @@
 </head>
 <body>
 
+    <!-- filtro por bando: cada boton guarda en data-bando el valor EXACTO
+         que tiene la propiedad "bando" de los objetos ("Heroe", "Villano").
+         "Todos" no es un bando, es la opcion de no filtrar. aria-pressed le
+         dice a un lector de pantalla cual de los tres esta elegido -->
+    <section class="filtro-bando" aria-label="Filtrar por bando">
+        <div class="filtro-botones">
+            <button type="button" class="filtro-boton filtro-boton--elegido" data-bando="Todos" aria-pressed="true">Todos</button>
+            <button type="button" class="filtro-boton" data-bando="Heroe" aria-pressed="false">Héroes</button>
+            <button type="button" class="filtro-boton" data-bando="Villano" aria-pressed="false">Villanos</button>
+        </div>
+        <!-- lo escribe index.js: que bando se esta viendo y cuantos hay -->
+        <p id="filtro-estado" class="filtro-estado"></p>
+    </section>
+
     <!-- contenedor vacio: el JS genera una carta por cada objeto del array "heroes" -->
     <div id="contenedor-cartas" class="contenedor-cartas"></div>
 

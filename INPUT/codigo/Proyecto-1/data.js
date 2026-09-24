@@ -9,6 +9,12 @@
 // mismas propiedades (nombre, imagen, edad, poderes, etc.) para que la
 // misma plantilla de carta sirva para cualquiera de ellos.
 //
+// "id" es un numero unico que identifica a cada heroe y NO cambia nunca,
+// aunque el heroe se mueva de puesto o se edite. el indice del array no
+// sirve para eso: si se borra o se mueve un heroe, los indices de los
+// demas se corren. los nuevos que se crean desde gestion.html siguen la
+// cuenta desde 11 (ver "siguienteId" en storage.js y gestion.js).
+//
 // "poderes" es un array de objetos { nombre, nivel } donde "nivel" (0-100)
 // se usa para dibujar la barrita de fuerza de cada poder.
 //
@@ -17,6 +23,7 @@
 
 const heroes = [
     {
+        id: 1,
         nombre: "Flash",
         imagen: "img/bolt.svg",
         edad: 24,
@@ -37,6 +44,7 @@ const heroes = [
         colorSecundario: "#f4c430",
     },
     {
+        id: 2,
         nombre: "Superman",
         imagen: "img/superman.svg",
         edad: 35,
@@ -56,6 +64,7 @@ const heroes = [
         colorSecundario: "#d21f2f",
     },
     {
+        id: 3,
         nombre: "Batman",
         imagen: "img/batman.jpg",
         // esta imagen es un .jpg con fondo blanco solido (no transparente
@@ -78,6 +87,7 @@ const heroes = [
         colorSecundario: "#f2c14e",
     },
     {
+        id: 4,
         nombre: "Iron Man",
         imagen: "img/ironman.svg",
         edad: 45,
@@ -97,6 +107,7 @@ const heroes = [
         colorSecundario: "#d4a017",
     },
     {
+        id: 5,
         nombre: "Captain America",
         imagen: "img/capamerica.svg",
         edad: 105,
@@ -116,6 +127,7 @@ const heroes = [
         colorSecundario: "#c8202f",
     },
     {
+        id: 6,
         nombre: "Thor",
         imagen: "img/thor.svg",
         edad: 1500,
@@ -135,6 +147,7 @@ const heroes = [
         colorSecundario: "#b08d3e",
     },
     {
+        id: 7,
         nombre: "Wolverine",
         imagen: "img/wolverine.svg",
         edad: 200,
@@ -154,6 +167,7 @@ const heroes = [
         colorSecundario: "#1c3f7a",
     },
     {
+        id: 8,
         nombre: "Green Lantern",
         imagen: "img/greenlantern.svg",
         edad: 32,
@@ -173,6 +187,7 @@ const heroes = [
         colorSecundario: "#9ad84b",
     },
     {
+        id: 9,
         nombre: "Black Panther",
         imagen: "img/blackpanther.svg",
         edad: 32,
@@ -192,6 +207,7 @@ const heroes = [
         colorSecundario: "#b8bec9",
     },
     {
+        id: 10,
         nombre: "Aquaman",
         imagen: "img/aquaman.svg",
         edad: 34,

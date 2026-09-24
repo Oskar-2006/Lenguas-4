@@ -18,11 +18,48 @@
 // este archivo se carga DESPUES de data.js (necesita la constante "heroes"
 // como valor inicial) y ANTES de index.js y gestion.js, que son los que
 // usan "listaHeroes".
+//
+// OJO: este archivo se carga ANTES del login (ver login.js), asi que
+// guardarHeroes() y listaHeroes ya estan disponibles en la consola del
+// navegador aunque el login todavia no se haya hecho. eso NO es un bug
+// puntual de este archivo: es una limitacion de fondo de tener los datos
+// en el navegador. ver LIMITACIONES.md.
 
 // la clave con la que se guarda. lleva el nombre del proyecto adelante
 // porque el cajon de localStorage es uno solo para todo el sitio: si otra
 // pagina del mismo servidor usara la clave "heroes" a secas, se pisarian
 const CLAVE_ALMACEN = "proyecto1-heroes";
+
+// el contador de ids va en su propia clave. no alcanza con calcularlo a
+// partir de la lista: si se borra el heroe con el id mas alto, el calculo
+// volveria a dar ese mismo id, y un id tiene que ser unico PARA SIEMPRE,
+// aunque el heroe que lo tenia ya no exista
+const CLAVE_SIGUIENTE_ID = "proyecto1-siguiente-id";
+
+// el id mas alto que hay en la lista, o 0 si la lista esta vacia.
+// el 0 inicial de Math.max evita que con una lista vacia devuelva -Infinity
+function idMasAlto(lista) {
+    return Math.max(0, ...lista.map(heroe => heroe.id || 0));
+}
+
+// los heroes guardados ANTES de que existiera la propiedad "id" no la
+// tienen. se les asigna una siguiendo la cuenta desde el id mas alto.
+// devuelve true si tuvo que completar alguno
+function asignarIdsFaltantes(lista) {
+    let proximo = idMasAlto(lista) + 1;
+    let completados = false;
+
+    lista.forEach(heroe => {
+        // "id" in heroe pregunta si la propiedad EXISTE, este en 0 o no
+        if (!("id" in heroe)) {
+            heroe.id = proximo;
+            proximo++;
+            completados = true;
+        }
+    });
+
+    return completados;
+}
 
 // devuelve el array con el que hay que trabajar: lo guardado si ya existe,
 // o los datos iniciales de data.js si es la primera vez
@@ -43,7 +80,15 @@ function cargarHeroes() {
     // error y la pagina entera dejaria de funcionar. mejor volver a los
     // datos iniciales que quedar con la pantalla en blanco
     try {
-        return JSON.parse(guardados);
+        const lista = JSON.parse(guardados);
+
+        // si hubo que completar ids se guarda enseguida, para que el
+        // mismo heroe no reciba un id distinto en la proxima recarga
+        if (asignarIdsFaltantes(lista)) {
+            guardarHeroes(lista);
+        }
+
+        return lista;
     } catch (error) {
         console.warn("Los datos guardados estaban dañados, se usan los de data.js.", error);
         return [...heroes];
@@ -73,6 +118,24 @@ function guardarHeroes(lista) {
 // no se ve reflejado: cargarHeroes() encuentra la clave y usa esa
 function restablecerHeroes() {
     localStorage.removeItem(CLAVE_ALMACEN);
+    localStorage.removeItem(CLAVE_SIGUIENTE_ID);
+}
+
+// devuelve el id que le toca al proximo heroe creado. localStorage guarda
+// texto, por eso Number() para volver a tenerlo como numero.
+// Math.max con idMasAlto + 1 es un seguro: si el contador guardado se
+// perdio o quedo atrasado, nunca se entrega un id que ya este en uso
+function cargarSiguienteId(lista) {
+    const guardado = Number(localStorage.getItem(CLAVE_SIGUIENTE_ID)) || 0;
+    return Math.max(guardado, idMasAlto(lista) + 1);
+}
+
+function guardarSiguienteId(valor) {
+    try {
+        localStorage.setItem(CLAVE_SIGUIENTE_ID, String(valor));
+    } catch (error) {
+        console.warn("No se pudo guardar el siguiente id.", error);
+    }
 }
 
 // el array con el que trabajan las dos paginas. se carga una sola vez, al

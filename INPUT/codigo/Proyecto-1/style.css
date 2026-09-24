@@ -669,6 +669,7 @@ body {
 .campo input[type="text"],
 .campo input[type="number"],
 .campo input[type="url"],
+.campo input[type="password"],
 .campo select,
 .campo textarea,
 .poder-fila input {
@@ -1043,4 +1044,119 @@ label.campo-casilla input {
     /* la barrita lateral marca cual esta seleccionado sin depender solo
        del color, que es mas dificil de distinguir */
     box-shadow: inset 3px 0 0 var(--acento);
+}
+
+/* ============================================================
+   LOG IN DE LA GESTION
+   ============================================================ */
+
+/* ocupa todo el alto de la pantalla y centra la caja. se le resta el
+   padding de arriba y abajo del body (24px + 24px), si no aparece scroll */
+.login {
+    min-height: calc(100vh - 48px);
+    display: grid;
+    place-items: center;
+}
+
+/* misma caja que el modal de detalle, para que se vea del mismo proyecto */
+.login-caja {
+    display: grid;
+    gap: 18px;
+    width: 100%;
+    max-width: 380px;
+    padding: 32px;
+    background-color: #1b2230;
+    border-left: 4px solid var(--acento);
+    border-radius: 4px 16px 4px 4px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+}
+
+.login-caja .gestion-titulo {
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.login-texto {
+    margin: -8px 0 0;
+    font-size: 0.85rem;
+    color: #b7c0cf;
+}
+
+/* en celular angosto 32px de padding se come demasiado ancho */
+@media (max-width: 400px) {
+    .login-caja {
+        padding: 24px 20px;
+    }
+}
+
+/* debajo de "Restablecer datos": mismo ancho y separado, pero con el
+   estilo secundario porque cerrar sesion no borra nada */
+.sidebar-salir {
+    width: 100%;
+    margin-top: 8px;
+}
+
+/* ============================================================
+   FILTRO POR BANDO (index.html)
+   ============================================================ */
+
+/* mismo max-width y centrado que .contenedor-cartas, para que los botones
+   queden alineados con el borde izquierdo de la primera carta */
+.filtro-bando {
+    max-width: 1400px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.filtro-botones {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filtro-boton {
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border: 1px solid var(--acento-tenue);
+    border-radius: 6px;
+    background-color: transparent;
+    color: #b7c0cf;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.filtro-boton:hover {
+    background-color: var(--acento-tenue);
+    color: var(--acento-claro);
+}
+
+/* el boton del bando que se esta viendo. no se llama ".activo" porque esa
+   clase ya la usa la linea "Activo" de las cartas */
+.filtro-boton--elegido {
+    background-color: var(--acento);
+    border-color: var(--acento);
+    color: #10141c;
+    font-weight: bold;
+}
+
+.filtro-boton--elegido:hover {
+    background-color: var(--acento-claro);
+    color: #10141c;
+}
+
+.filtro-estado {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #7c869a;
+}
+
+/* el aviso de "no hay villanos" va adentro del grid: sin esto ocuparia
+   una sola columna en vez de todo el ancho */
+.contenedor-cartas .seccion-aviso {
+    grid-column: 1 / -1;
 }

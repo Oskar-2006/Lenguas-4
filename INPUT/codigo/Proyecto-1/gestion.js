@@ -58,6 +58,11 @@ const imagenesDisponibles = [
 // ocuparia casi todo el espacio, y la misma foto a 256 px pesa unos pocos KB
 const LADO_MAXIMO_IMAGEN = 256;
 
+// el id que se le va a dar al proximo heroe creado. es "let" y no "const"
+// porque sube en uno con cada heroe nuevo. arranca en lo que haya
+// guardado storage.js (o en 11 la primera vez, despues de los 10 de data.js)
+let siguienteId = cargarSiguienteId(listaHeroes);
+
 // ============================================================
 // NAVEGACION DEL SIDEBAR
 // ============================================================
@@ -399,6 +404,11 @@ function procesarEdicion(formulario, indice) {
     // largo — sigue teniendo la misma cantidad de heroes, solo que uno de
     // ellos paso a ser otro objeto
     const heroeAnterior = listaHeroes[indice];
+
+    // leerFormulario() arma un objeto NUEVO que no trae id (el formulario
+    // no tiene campo de id, y no deberia: el id no se edita). se copia el
+    // del heroe anterior para que siga siendo el mismo heroe
+    heroeEditado.id = heroeAnterior.id;
     listaHeroes[indice] = heroeEditado;
 
     // si no se pudo guardar, se vuelve al objeto de antes
@@ -1139,6 +1149,10 @@ function procesarCreacion(formulario) {
         return;
     }
 
+    // el id se asigna aca y no en leerFormulario(), porque esa funcion
+    // tambien la usa editar, y al editar el heroe ya tiene su id
+    heroeNuevo.id = siguienteId;
+
     // la posicion NO es una propiedad del heroe (no existe en data.js): es
     // una instruccion sobre donde meterlo. por eso se lee aparte y no
     // dentro de leerFormulario(), que solo arma el objeto heroe.
@@ -1175,6 +1189,11 @@ function procesarCreacion(formulario) {
     if (!guardarOAvisar(() => listaHeroes.splice(posicion, 1))) {
         return;
     }
+
+    // el contador sube recien DESPUES de guardar bien: si el guardado
+    // fallaba, el heroe se descartaba y su id se puede volver a usar
+    siguienteId++;
+    guardarSiguienteId(siguienteId);
 
     mostrarAviso(
         `"${heroeNuevo.nombre}" agregado en el puesto ${posicion + 1} y guardado. Ahora hay ${listaHeroes.length} héroes.`,
