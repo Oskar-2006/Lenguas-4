@@ -51,6 +51,13 @@ const imagenesDisponibles = [
     "wonderwoman.png",
 ];
 
+// medida maxima (en px) del lado mas largo de una imagen subida. las cartas
+// la muestran entre 28 y 96 px, asi que 256 alcanza incluso en pantallas de
+// alta densidad. achicarla importa porque las imagenes subidas se guardan
+// como TEXTO en localStorage, que tiene un limite de ~5 MB: una foto de 3 MB
+// ocuparia casi todo el espacio, y la misma foto a 256 px pesa unos pocos KB
+const LADO_MAXIMO_IMAGEN = 256;
+
 // ============================================================
 // NAVEGACION DEL SIDEBAR
 // ============================================================
@@ -380,9 +387,10 @@ function abrirEdicion(indice) {
 
 function procesarEdicion(formulario, indice) {
     const heroeEditado = leerFormulario();
+    const error = validarHeroe(heroeEditado);
 
-    if (heroeEditado === null) {
-        mostrarAviso("Falta cargar al menos un poder con nombre.", "error");
+    if (error !== null) {
+        mostrarAviso(error, "error");
         return;
     }
 
@@ -390,9 +398,13 @@ function procesarEdicion(formulario, indice) {
     // estaba ahi por el nuevo. a diferencia de crear, el array no cambia de
     // largo — sigue teniendo la misma cantidad de heroes, solo que uno de
     // ellos paso a ser otro objeto
+    const heroeAnterior = listaHeroes[indice];
     listaHeroes[indice] = heroeEditado;
 
-    guardarHeroes(listaHeroes);
+    // si no se pudo guardar, se vuelve al objeto de antes
+    if (!guardarOAvisar(() => { listaHeroes[indice] = heroeAnterior; })) {
+        return;
+    }
 
     mostrarAviso(`Cambios de "${heroeEditado.nombre}" guardados.`, "exito");
 }
@@ -486,7 +498,8 @@ function eliminarHeroe(indice) {
 // hay un campo por cada propiedad de los objetos de data.js, y cada tipo
 // de input se eligio segun el tipo de dato que guarda esa propiedad:
 // texto -> input text, numero -> input number, true/false -> checkbox,
-// color hex -> input color, opciones fijas -> select.
+// color hex -> input color, opciones fijas -> select (bando y universo
+// suman "Ninguna" y "Otra", que abre un campo de texto para escribirlo).
 //
 // "poderes" es el caso distinto: no es un valor suelto sino un array de
 // objetos { nombre, nivel }, y cada heroe tiene una cantidad diferente
@@ -525,6 +538,23 @@ function dibujarFormulario(heroe, indice) {
         poderes: [],
     };
 
+    // de donde viene la imagen del heroe que se edita (al crear siempre
+    // arranca en "carpeta"). una imagen subida se guarda como un texto que
+    // empieza con "data:"; una ruta que esta en la lista de img/ es de la
+    // carpeta; cualquier otra cosa se trata como una URL
+    const esDeCarpeta = imagenesDisponibles.some(archivo => `img/${archivo}` === valores.imagen);
+    let fuenteImagen = "carpeta";
+    if (valores.imagen.startsWith("data:")) {
+        fuenteImagen = "archivo";
+    } else if (valores.imagen !== "" && !esDeCarpeta) {
+        fuenteImagen = "url";
+    }
+
+    // bando y universo son un select con opciones fijas + "Ninguna" + "Otra".
+    // si el heroe que se edita tiene un valor escrito a mano, cae en "Otra"
+    const bando = armarOpcionesConOtra(["Heroe", "Villano"], valores.bando);
+    const universo = armarOpcionesConOtra(["DC Comics", "Marvel Comics"], valores.universo);
+
     const formulario = document.createElement("form");
     formulario.className = "formulario-crear";
     // novalidate no: se deja la validacion del navegador (required, min, max)
@@ -544,14 +574,38 @@ function dibujarFormulario(heroe, indice) {
 
         <div class="campo-doble">
             <div class="campo">
-                <label for="crear-imagen">Imagen</label>
-                <select id="crear-imagen" required>
-                    ${imagenesDisponibles.map(archivo => {
-                        const ruta = `img/${archivo}`;
-                        // "selected" marca cual opcion aparece elegida al abrir
-                        return `<option value="${ruta}" ${valores.imagen === ruta ? "selected" : ""}>${archivo}</option>`;
-                    }).join("")}
-                </select>
+                <label for="crear-imagen-fuente">Imagen</label>
+                <div class="imagen-editor">
+                    <!-- vista previa: arranca oculta y el JS la muestra cuando
+                         el navegador confirma que pudo cargar la imagen -->
+                    <div class="imagen-previa">
+                        <img id="crear-imagen-previa" alt="Vista previa de la imagen" hidden>
+                    </div>
+                    <!-- el primer select elige DE DONDE sale la imagen, y de los
+                         tres controles siguientes solo se ve el que corresponde
+                         (lo decide actualizarCamposCondicionales) -->
+                    <div class="imagen-controles">
+                        <select id="crear-imagen-fuente">
+                            <option value="carpeta" ${fuenteImagen === "carpeta" ? "selected" : ""}>De la carpeta img/</option>
+                            <option value="archivo" ${fuenteImagen === "archivo" ? "selected" : ""}>Subir un archivo</option>
+                            <option value="url" ${fuenteImagen === "url" ? "selected" : ""}>Desde una URL</option>
+                        </select>
+                        <select id="crear-imagen-carpeta" aria-label="Imagen de la carpeta img/">
+                            ${imagenesDisponibles.map(archivo => {
+                                const ruta = `img/${archivo}`;
+                                // "selected" marca cual opcion aparece elegida al abrir
+                                return `<option value="${ruta}" ${valores.imagen === ruta ? "selected" : ""}>${archivo}</option>`;
+                            }).join("")}
+                        </select>
+                        <input type="file" id="crear-imagen-archivo" accept="image/*" aria-label="Archivo de imagen">
+                        <input type="url" id="crear-imagen-url" required placeholder="https://ejemplo.com/logo.png" aria-label="URL de la imagen">
+                        <!-- aca queda la imagen subida YA reducida y convertida a
+                             texto. el input file no sirve para guardarla: el JS
+                             no puede escribirle un valor propio, solo vaciarlo -->
+                        <input type="hidden" id="crear-imagen-subida">
+                        <p id="crear-imagen-estado" class="imagen-estado"></p>
+                    </div>
+                </div>
             </div>
             <div class="campo">
                 <label for="crear-edad">Edad</label>
@@ -562,17 +616,14 @@ function dibujarFormulario(heroe, indice) {
         <div class="campo-doble">
             <div class="campo">
                 <label for="crear-bando">Bando</label>
-                <select id="crear-bando">
-                    <option value="Heroe" ${valores.bando === "Heroe" ? "selected" : ""}>Heroe</option>
-                    <option value="Villano" ${valores.bando === "Villano" ? "selected" : ""}>Villano</option>
-                </select>
+                <select id="crear-bando">${bando.opciones}</select>
+                <!-- solo se ve cuando el select esta en "Otra" -->
+                <input type="text" id="crear-bando-otro" required placeholder="¿Qué bando es?" aria-label="Bando (otra)">
             </div>
             <div class="campo">
                 <label for="crear-universo">Universo</label>
-                <select id="crear-universo">
-                    <option value="DC Comics" ${valores.universo === "DC Comics" ? "selected" : ""}>DC Comics</option>
-                    <option value="Marvel Comics" ${valores.universo === "Marvel Comics" ? "selected" : ""}>Marvel Comics</option>
-                </select>
+                <select id="crear-universo">${universo.opciones}</select>
+                <input type="text" id="crear-universo-otro" required placeholder="¿De qué universo es?" aria-label="Universo (otra)">
             </div>
         </div>
 
@@ -614,7 +665,13 @@ function dibujarFormulario(heroe, indice) {
         ${editando ? "" : `
         <div class="campo">
             <label for="crear-posicion">Posición en la lista</label>
-            <select id="crear-posicion">${armarOpcionesPosicion()}</select>
+            <select id="crear-posicion">
+                <option value="primero">Primero</option>
+                <option value="ultimo" selected>Último</option>
+                <option value="otro">Otro</option>
+            </select>
+            <!-- el numero de puesto: min y max los pone actualizarLimitePosicion() -->
+            <input type="number" id="crear-posicion-otro" min="1" required aria-label="Número de puesto">
         </div>
         `}
 
@@ -667,6 +724,41 @@ function dibujarFormulario(heroe, indice) {
         });
     }
 
+    // los textos libres se cargan con .value y NO dentro del template: si el
+    // texto tuviera comillas, cortaria el atributo value="..." del HTML
+    document.getElementById("crear-bando-otro").value = bando.textoOtro;
+    document.getElementById("crear-universo-otro").value = universo.textoOtro;
+    document.getElementById("crear-imagen-url").value = fuenteImagen === "url" ? valores.imagen : "";
+    document.getElementById("crear-imagen-subida").value = fuenteImagen === "archivo" ? valores.imagen : "";
+
+    // un solo listener para TODO el formulario: el evento "change" sube
+    // (burbujea) desde cada select hasta el <form>, asi no hace falta
+    // conectar uno por cada campo condicional
+    formulario.addEventListener("change", actualizarCamposCondicionales);
+
+    // la vista previa solo depende de los controles de imagen
+    ["crear-imagen-fuente", "crear-imagen-carpeta", "crear-imagen-url"].forEach(id => {
+        document.getElementById(id).addEventListener("change", actualizarVistaPrevia);
+    });
+    document.getElementById("crear-imagen-archivo").addEventListener("change", procesarArchivoImagen);
+
+    // "load" y "error" son los dos resultados posibles de pedirle una imagen
+    // al navegador: la vista previa se muestra o se oculta segun cual llegue
+    const vistaPrevia = document.getElementById("crear-imagen-previa");
+    vistaPrevia.addEventListener("load", () => {
+        vistaPrevia.hidden = false;
+    });
+    vistaPrevia.addEventListener("error", () => {
+        vistaPrevia.hidden = true;
+        mostrarEstadoImagen("No se pudo cargar esa imagen.", true);
+    });
+
+    if (!editando) {
+        actualizarLimitePosicion();
+    }
+    actualizarCamposCondicionales();
+    actualizarVistaPrevia();
+
     formulario.addEventListener("submit", (evento) => {
         // sin esto el navegador recargaria la pagina al enviar el
         // formulario (su comportamiento por defecto desde siempre), y se
@@ -681,25 +773,69 @@ function dibujarFormulario(heroe, indice) {
     });
 }
 
-// arma las <option> del desplegable de posicion. hay una opcion por cada
-// hueco donde se puede insertar: antes de cada heroe que ya existe, mas
-// una al final. el "value" es el INDICE donde va a entrar el heroe nuevo,
-// y el texto muestra el numero de puesto (indice + 1) porque contar desde
-// 1 es mas natural de leer que desde 0
-function armarOpcionesPosicion() {
-    const opciones = listaHeroes.map((heroe, indice) => {
-        const etiqueta = indice === 0
-            ? `1 — primero (antes de ${heroe.nombre})`
-            : `${indice + 1} — antes de ${heroe.nombre}`;
-        return `<option value="${indice}">${etiqueta}</option>`;
-    });
+// ============================================================
+// CAMPOS CONDICIONALES: "Otra", "Otro" y la fuente de la imagen
+// ============================================================
+// varios campos solo tienen sentido segun lo que se eligio en otro: el
+// texto de "Otra" solo se ve si el select esta en "Otra", y de los tres
+// controles de imagen solo se ve el de la fuente elegida
 
-    // la ultima opcion no va "antes de" nadie: es el final de la lista.
-    // su indice es listaHeroes.length, o sea una posicion mas alla del
-    // ultimo elemento existente
-    opciones.push(`<option value="${listaHeroes.length}" selected>${listaHeroes.length + 1} — último</option>`);
+// arma las <option> de un select con las opciones fijas + "Ninguna" +
+// "Otra". devuelve el HTML de las opciones y el texto que hay que cargar en
+// el campo de "Otra" (vacio si el valor actual es una de las fijas)
+function armarOpcionesConOtra(opcionesFijas, valorActual) {
+    // "Ninguna" cuenta como fija porque se guarda tal cual. lo que no esta en
+    // esta lista es un texto escrito a mano, o sea que le corresponde "Otra".
+    // "Otra" en si NO esta en la lista: si alguien escribiera justo "Otra"
+    // como valor, tiene que volver a cargarse como texto y no perderse
+    const fijas = [...opcionesFijas, "Ninguna"];
+    const esFija = fijas.includes(valorActual);
+    const eleccion = esFija ? valorActual : "Otra";
 
-    return opciones.join("");
+    const opciones = [...fijas, "Otra"].map(opcion => {
+        return `<option value="${opcion}" ${opcion === eleccion ? "selected" : ""}>${opcion}</option>`;
+    }).join("");
+
+    return { opciones: opciones, textoOtro: esFija ? "" : valorActual };
+}
+
+// muestra u oculta un campo condicional. ademas de esconderlo lo DESHABILITA:
+// un campo escondido pero habilitado se sigue validando al enviar, y si
+// estuviera vacio (tiene "required") el navegador frenaria el envio sin
+// poder mostrar el error, porque el campo no se ve. un campo deshabilitado
+// queda fuera de la validacion
+function mostrarCampo(campo, visible) {
+    campo.hidden = !visible;
+    campo.disabled = !visible;
+}
+
+// deja visibles solo los campos que corresponden a lo elegido en los
+// selects. lee todo por id, asi se puede llamar tanto desde el listener del
+// formulario como despues de un reset()
+function actualizarCamposCondicionales() {
+    const fuente = document.getElementById("crear-imagen-fuente").value;
+    mostrarCampo(document.getElementById("crear-imagen-carpeta"), fuente === "carpeta");
+    mostrarCampo(document.getElementById("crear-imagen-archivo"), fuente === "archivo");
+    mostrarCampo(document.getElementById("crear-imagen-url"), fuente === "url");
+
+    mostrarCampo(document.getElementById("crear-bando-otro"), document.getElementById("crear-bando").value === "Otra");
+    mostrarCampo(document.getElementById("crear-universo-otro"), document.getElementById("crear-universo").value === "Otra");
+
+    // la posicion solo existe al crear: al editar el heroe ya tiene su lugar
+    const posicion = document.getElementById("crear-posicion");
+    if (posicion !== null) {
+        mostrarCampo(document.getElementById("crear-posicion-otro"), posicion.value === "otro");
+    }
+}
+
+// el numero de puesto va de 1 hasta "ultimo", que es un puesto mas que la
+// cantidad de heroes que hay ahora. como la lista crece con cada heroe
+// creado, el tope se recalcula cada vez
+function actualizarLimitePosicion() {
+    const tope = listaHeroes.length + 1;
+    const campo = document.getElementById("crear-posicion-otro");
+    campo.max = tope;
+    campo.placeholder = `Número de puesto (1 a ${tope})`;
 }
 
 // arma una fila del editor de poderes: nombre + nivel + boton de quitar.
@@ -735,6 +871,163 @@ function crearFilaPoder(poder) {
 }
 
 // ============================================================
+// IMAGEN DEL HEROE: CARPETA, ARCHIVO SUBIDO O URL
+// ============================================================
+// la propiedad "imagen" siempre termina siendo UN texto que va en el
+// src="..." de un <img>, venga de donde venga:
+//   carpeta -> una ruta relativa, ej. "img/thor.svg"
+//   url     -> la direccion completa, ej. "https://sitio.com/logo.png"
+//   archivo -> un "data URL": el contenido de la imagen escrito como texto
+//              ("data:image/webp;base64,....")
+// por eso index.html, las tablas y el modal no necesitan saber de cual de
+// las tres viene: todas se dibujan igual
+
+// devuelve el texto de imagen que corresponde a lo elegido en el
+// formulario, o "" si todavia no hay una imagen valida
+function leerImagen() {
+    const fuente = document.getElementById("crear-imagen-fuente").value;
+
+    if (fuente === "carpeta") {
+        return document.getElementById("crear-imagen-carpeta").value;
+    }
+
+    if (fuente === "archivo") {
+        return document.getElementById("crear-imagen-subida").value;
+    }
+
+    // new URL() lanza un error si el texto no es una direccion valida, de
+    // ahi el try/catch. solo se aceptan http y https: el type="url" del
+    // navegador tambien deja pasar otros esquemas (ftp:, javascript:...).
+    // .href devuelve la direccion ya normalizada (comillas y espacios
+    // codificados), que es lo que la hace segura para meter en un src="..."
+    try {
+        const direccion = new URL(document.getElementById("crear-imagen-url").value.trim());
+        const esWeb = direccion.protocol === "http:" || direccion.protocol === "https:";
+        return esWeb ? direccion.href : "";
+    } catch (error) {
+        return "";
+    }
+}
+
+// muestra en la vista previa la imagen elegida. no decide si se ve: eso lo
+// hacen los eventos "load" y "error" del <img> (ver dibujarFormulario)
+function actualizarVistaPrevia() {
+    const vistaPrevia = document.getElementById("crear-imagen-previa");
+    const ruta = leerImagen();
+
+    mostrarEstadoImagen("", false);
+
+    if (ruta === "") {
+        vistaPrevia.hidden = true;
+        // removeAttribute y no src = "": un src vacio dispara "error"
+        vistaPrevia.removeAttribute("src");
+        return;
+    }
+
+    vistaPrevia.src = ruta;
+}
+
+// el texto chico debajo de los controles de imagen: avisos de la carga
+function mostrarEstadoImagen(mensaje, esError) {
+    const estado = document.getElementById("crear-imagen-estado");
+    estado.textContent = mensaje;
+    estado.className = esError ? "imagen-estado imagen-estado--error" : "imagen-estado";
+}
+
+// se ejecuta cuando el estudiante elige un archivo. el resultado (la imagen
+// ya reducida, como texto) queda en el input oculto, que es del que lee
+// leerImagen() al enviar el formulario
+function procesarArchivoImagen(evento) {
+    const campoArchivo = evento.target;
+    const archivo = campoArchivo.files[0];
+
+    // si se cancela el selector de archivos, files queda vacio
+    if (archivo === undefined) {
+        return;
+    }
+
+    // accept="image/*" es solo una sugerencia: el selector deja elegir
+    // "todos los archivos", asi que se revisa aca tambien
+    if (!archivo.type.startsWith("image/")) {
+        campoArchivo.value = "";
+        mostrarEstadoImagen("Ese archivo no es una imagen.", true);
+        return;
+    }
+
+    // reducirImagen() no devuelve el resultado: devuelve una Promise, una
+    // promesa de que el resultado va a llegar mas tarde. leer y dibujar una
+    // imagen lleva tiempo y el JS no se queda esperando: sigue con lo demas
+    // y avisa por .then() cuando termina, o por .catch() si algo fallo
+    reducirImagen(archivo)
+        .then(datos => {
+            // si mientras tanto se cambio de seccion, el formulario ya no existe
+            if (!campoArchivo.isConnected) {
+                return;
+            }
+
+            document.getElementById("crear-imagen-subida").value = datos;
+            actualizarVistaPrevia();
+
+            const enKB = bytes => Math.max(1, Math.round(bytes / 1024));
+            mostrarEstadoImagen(`Lista: de ${enKB(archivo.size)} KB a ${enKB(datos.length)} KB.`, false);
+        })
+        .catch(() => {
+            if (!campoArchivo.isConnected) {
+                return;
+            }
+
+            campoArchivo.value = "";
+            mostrarEstadoImagen("No se pudo leer esa imagen.", true);
+        });
+}
+
+// reduce la imagen a LADO_MAXIMO_IMAGEN y la devuelve como un data URL. el
+// truco es dibujarla en un <canvas> mas chico (que nunca se agrega a la
+// pagina) y pedirle al canvas que se exporte como texto
+function reducirImagen(archivo) {
+    return new Promise((resolver, rechazar) => {
+        // createObjectURL da una direccion temporal (blob:...) que apunta al
+        // archivo elegido, sin tener que leerlo entero como texto primero
+        const direccionTemporal = URL.createObjectURL(archivo);
+        const imagen = new Image();
+
+        imagen.onload = () => {
+            URL.revokeObjectURL(direccionTemporal);
+
+            // un svg sin width/height propios puede informar medida 0: en ese
+            // caso se usa el lado maximo como medida de respaldo
+            const ancho = imagen.naturalWidth || LADO_MAXIMO_IMAGEN;
+            const alto = imagen.naturalHeight || LADO_MAXIMO_IMAGEN;
+
+            // por cuanto hay que multiplicar para que el lado mas largo mida
+            // LADO_MAXIMO_IMAGEN. Math.min(1, ...) impide AGRANDAR una imagen
+            // chica (se veria borrosa), salvo el svg: es vectorial y no pierde
+            // calidad al agrandarse
+            let escala = LADO_MAXIMO_IMAGEN / Math.max(ancho, alto);
+            if (archivo.type !== "image/svg+xml") {
+                escala = Math.min(1, escala);
+            }
+
+            const lienzo = document.createElement("canvas");
+            lienzo.width = Math.max(1, Math.round(ancho * escala));
+            lienzo.height = Math.max(1, Math.round(alto * escala));
+            lienzo.getContext("2d").drawImage(imagen, 0, 0, lienzo.width, lienzo.height);
+
+            // webp pesa poco y conserva la transparencia. un navegador que no
+            // sepa exportar webp devuelve png, que tambien sirve
+            resolver(lienzo.toDataURL("image/webp", 0.85));
+        };
+
+        imagen.onerror = () => {
+            URL.revokeObjectURL(direccionTemporal);
+            rechazar(new Error("El navegador no pudo leer la imagen"));
+        };
+
+        imagen.src = direccionTemporal;
+    });
+}
+
+// ============================================================
 // SECCION CREAR: GUARDAR EL HEROE
 // ============================================================
 
@@ -742,32 +1035,81 @@ function crearFilaPoder(poder) {
 // data.js. es importante que las propiedades se llamen igual, porque
 // index.js las busca por ese nombre exacto (heroe.niveldefuerza, etc.)
 function leerFormulario() {
-    const poderes = leerPoderes();
-
-    // validacion que el navegador no puede hacer solo: los campos de poder
-    // no son "required" porque las filas se crean con JS, asi que se revisa
-    // aca que haya quedado al menos uno con nombre
-    if (poderes.length === 0) {
-        return null;
-    }
-
     return {
         nombre: document.getElementById("crear-nombre").value.trim(),
-        imagen: document.getElementById("crear-imagen").value,
+        imagen: leerImagen(),
         imagenFondoBlanco: document.getElementById("crear-fondo-blanco").checked,
         // los value de un input SIEMPRE son texto, aunque el input sea
         // type="number". Number() lo convierte para que edad y los niveles
         // queden como numeros igual que en data.js, y no como "32"
         edad: Number(document.getElementById("crear-edad").value),
-        poderes: poderes,
+        poderes: leerPoderes(),
         descripcion: document.getElementById("crear-descripcion").value.trim(),
-        bando: document.getElementById("crear-bando").value,
-        universo: document.getElementById("crear-universo").value,
+        bando: leerSelectConOtra("crear-bando", "crear-bando-otro"),
+        universo: leerSelectConOtra("crear-universo", "crear-universo-otro"),
         niveldefuerza: Number(document.getElementById("crear-fuerza").value),
         activo: document.getElementById("crear-activo").checked,
         colorPrincipal: document.getElementById("crear-color-principal").value,
         colorSecundario: document.getElementById("crear-color-secundario").value,
     };
+}
+
+// devuelve lo elegido en un select o, si eligio "Otra", el texto que
+// escribio en su campo. "Ninguna" no necesita nada especial: se guarda
+// tal cual como el texto "Ninguna"
+function leerSelectConOtra(idSelect, idTexto) {
+    const eleccion = document.getElementById(idSelect).value;
+
+    if (eleccion !== "Otra") {
+        return eleccion;
+    }
+
+    return document.getElementById(idTexto).value.trim();
+}
+
+// validaciones que el navegador no puede hacer solo. devuelve el mensaje
+// del primer problema que encuentre, o null si esta todo bien. el orden
+// sigue el del formulario, de arriba hacia abajo
+function validarHeroe(heroe) {
+    // imagen vacia significa: no se subio archivo, o la URL no es http(s).
+    // el resto de las fuentes siempre trae valor
+    if (heroe.imagen === "") {
+        const fuente = document.getElementById("crear-imagen-fuente").value;
+        return fuente === "archivo"
+            ? "Elegí un archivo de imagen."
+            : "La URL de la imagen tiene que empezar con http:// o https://";
+    }
+
+    // "required" deja pasar un campo con solo espacios, pero despues de
+    // trim() queda vacio: se revisa aca
+    if (heroe.bando === "") {
+        return "Escribí cuál es el bando, o elegí otra opción.";
+    }
+
+    if (heroe.universo === "") {
+        return "Escribí de qué universo es, o elegí otra opción.";
+    }
+
+    // los campos de poder no son "required" porque las filas se crean con
+    // JS, asi que se revisa aca que haya quedado al menos uno con nombre
+    if (heroe.poderes.length === 0) {
+        return "Falta cargar al menos un poder con nombre.";
+    }
+
+    return null;
+}
+
+// guarda la lista. si no entra en localStorage, DESHACE el cambio que se
+// acababa de hacer en memoria (para que lo que se ve y lo que esta guardado
+// no queden distintos) y avisa. devuelve true si se guardo
+function guardarOAvisar(deshacer) {
+    if (guardarHeroes(listaHeroes)) {
+        return true;
+    }
+
+    deshacer();
+    mostrarAviso("No se pudo guardar: el almacenamiento del navegador está lleno. Probá con una imagen más liviana o eliminá algún héroe.", "error");
+    return false;
 }
 
 // recorre las filas del editor y devuelve el array de objetos
@@ -790,16 +1132,30 @@ function leerPoderes() {
 
 function procesarCreacion(formulario) {
     const heroeNuevo = leerFormulario();
+    const error = validarHeroe(heroeNuevo);
 
-    if (heroeNuevo === null) {
-        mostrarAviso("Falta cargar al menos un poder con nombre.", "error");
+    if (error !== null) {
+        mostrarAviso(error, "error");
         return;
     }
 
     // la posicion NO es una propiedad del heroe (no existe en data.js): es
     // una instruccion sobre donde meterlo. por eso se lee aparte y no
-    // dentro de leerFormulario(), que solo arma el objeto heroe
-    const posicion = Number(document.getElementById("crear-posicion").value);
+    // dentro de leerFormulario(), que solo arma el objeto heroe.
+    // "primero" y "ultimo" son los dos extremos. con "otro" el estudiante
+    // escribio un numero de puesto, que cuenta desde 1, mientras que los
+    // indices del array cuentan desde 0: de ahi el "- 1". el navegador ya
+    // comprobo que sea un entero entre 1 y el ultimo puesto (min y max)
+    const eleccionPosicion = document.getElementById("crear-posicion").value;
+    let posicion;
+
+    if (eleccionPosicion === "primero") {
+        posicion = 0;
+    } else if (eleccionPosicion === "ultimo") {
+        posicion = listaHeroes.length;
+    } else {
+        posicion = Number(document.getElementById("crear-posicion-otro").value) - 1;
+    }
 
     // splice() sirve para insertar en CUALQUIER punto del array, no solo en
     // los extremos. sus 3 argumentos son:
@@ -814,8 +1170,11 @@ function procesarCreacion(formulario) {
 
     // este es el paso que hace que el heroe sobreviva a la recarga. sin
     // esta linea el cambio solo existiria en memoria y se perderia al
-    // cambiar de pagina, que es justo el problema que teniamos antes
-    guardarHeroes(listaHeroes);
+    // cambiar de pagina, que es justo el problema que teniamos antes.
+    // si no entra en el almacen, se saca el heroe que se acababa de insertar
+    if (!guardarOAvisar(() => listaHeroes.splice(posicion, 1))) {
+        return;
+    }
 
     mostrarAviso(
         `"${heroeNuevo.nombre}" agregado en el puesto ${posicion + 1} y guardado. Ahora hay ${listaHeroes.length} héroes.`,
@@ -828,10 +1187,17 @@ function procesarCreacion(formulario) {
     formulario.reset();
     document.getElementById("crear-fuerza-valor").textContent = "50";
 
-    // el desplegable de posicion se arma a partir de la lista, asi que
-    // despues de agregar un heroe quedo desactualizado: le falta el recien
-    // creado y el "ultimo" apunta a un indice viejo. hay que rehacerlo
-    document.getElementById("crear-posicion").innerHTML = armarOpcionesPosicion();
+    // tampoco sabe de lo que vive fuera de los campos habituales: el input
+    // oculto con la imagen subida no se limpia con reset(), y los campos
+    // condicionales (Otra, Otro, fuente de imagen) tienen que volver a
+    // esconderse segun los selects, que ahora estan en su valor inicial
+    document.getElementById("crear-imagen-subida").value = "";
+    actualizarCamposCondicionales();
+    actualizarVistaPrevia();
+
+    // el tope del numero de puesto depende del largo de la lista, y la
+    // lista acaba de crecer en uno
+    actualizarLimitePosicion();
 
     const contenedorPoderes = document.getElementById("crear-poderes");
     contenedorPoderes.innerHTML = "";

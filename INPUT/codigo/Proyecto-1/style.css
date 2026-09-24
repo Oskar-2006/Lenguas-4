@@ -668,6 +668,7 @@ body {
    font-family: inherit o se ven con la fuente por defecto del navegador */
 .campo input[type="text"],
 .campo input[type="number"],
+.campo input[type="url"],
 .campo select,
 .campo textarea,
 .poder-fila input {
@@ -696,11 +697,15 @@ body {
     border-color: var(--acento);
 }
 
-/* dos campos lado a lado en pantalla grande, apilados en celular */
+/* dos campos lado a lado en pantalla grande, apilados en celular.
+   align-items: start hace que cada columna mida lo que mide su contenido:
+   sin esto, si un campo se agranda (por ejemplo al aparecer el texto de
+   "Otra") el de al lado se estiraria hasta igualarlo */
 .campo-doble {
     display: grid;
     grid-template-columns: 1fr;
     gap: 18px;
+    align-items: start;
 }
 
 @media (min-width: 560px) {
@@ -741,6 +746,86 @@ label.campo-casilla input {
     border-radius: 6px;
     background-color: #10141c;
     cursor: pointer;
+}
+
+/* ============================================================
+   EDITOR DE IMAGEN (carpeta, archivo o URL + vista previa)
+   ============================================================ */
+
+/* la vista previa a la izquierda y los controles a la derecha */
+.imagen-editor {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 12px;
+    align-items: start;
+}
+
+/* el cuadro tiene medida fija aunque no haya imagen: asi el formulario no
+   "salta" cuando la vista previa aparece o desaparece */
+.imagen-previa {
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border: 1px dashed var(--acento-tenue);
+    border-radius: 6px;
+    background-color: #10141c;
+    overflow: hidden;
+}
+
+/* contain entra la imagen completa sin recortarla */
+.imagen-previa img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.imagen-controles {
+    display: grid;
+    gap: 8px;
+}
+
+.imagen-estado {
+    margin: 0;
+    font-size: 0.78rem;
+    color: #7c869a;
+}
+
+.imagen-estado--error {
+    color: var(--acento-claro-hover);
+}
+
+/* sin mensaje el parrafo no ocupa lugar (ni siquiera el hueco del gap) */
+.imagen-estado:empty {
+    display: none;
+}
+
+/* el boton de "elegir archivo" que trae el navegador se ve claro sobre el
+   fondo oscuro: se le da el mismo aspecto que a .boton-secundario */
+.campo input[type="file"] {
+    font-family: inherit;
+    font-size: 0.8rem;
+    color: #b7c0cf;
+    width: 100%;
+}
+
+.campo input[type="file"]::file-selector-button {
+    font-family: inherit;
+    font-size: 0.8rem;
+    padding: 7px 12px;
+    margin-right: 10px;
+    border: 1px dashed var(--acento-tenue);
+    border-radius: 6px;
+    background-color: transparent;
+    color: var(--acento);
+    cursor: pointer;
+}
+
+.campo input[type="file"]::file-selector-button:hover {
+    border-style: solid;
+    border-color: var(--acento);
 }
 
 /* ============================================================

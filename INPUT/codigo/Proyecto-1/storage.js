@@ -52,9 +52,20 @@ function cargarHeroes() {
 
 // guarda el array completo. se llama despues de CADA cambio (crear, editar
 // o eliminar un heroe), porque localStorage no se entera solo de que el
-// array cambio: hay que avisarle
+// array cambio: hay que avisarle.
+//
+// devuelve true si se guardo y false si no entro. localStorage tiene un
+// limite de espacio (alrededor de 5 MB por sitio) y cuando se llena
+// setItem lanza un error. las imagenes subidas se guardan como texto en este
+// mismo almacen, asi que es el limite que mas cerca queda
 function guardarHeroes(lista) {
-    localStorage.setItem(CLAVE_ALMACEN, JSON.stringify(lista));
+    try {
+        localStorage.setItem(CLAVE_ALMACEN, JSON.stringify(lista));
+        return true;
+    } catch (error) {
+        console.warn("No se pudo guardar en localStorage (¿está lleno?).", error);
+        return false;
+    }
 }
 
 // borra lo guardado para volver a los 10 heroes de data.js. hace falta
