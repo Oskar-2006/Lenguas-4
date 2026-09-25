@@ -66,3 +66,13 @@ nuevo. Se resolvió con `localStorage` (`storage.js`), guardando el array como t
 Al revisar la tarea de la colección de objetos contra el enunciado, tuve que ajustar el trabajo
 ya terminado (bajar de 12 a 10 héroes y armar la bitácora de estilos). Aprendí a leer las
 instrucciones primero y luego hacer el trabajo, para no tener que modificarlo al terminar.
+
+## 2026-09-25
+
+Hoy "creamos" un juego con ayuda del profe usando las cartas que ya teníamos: un memory
+(`INPUT/codigo/Proyecto-1/game.html`) adaptado de un ejemplo de flip cards, que reparte héroes de
+`listaHeroes` y guarda las partidas de cada usuario. También aprendí sobre los signos de las
+expresiones regulares que arman secuencias: `()` agrupa, `[]` define un conjunto de caracteres,
+`{}` indica cuántas veces se repite, `-` marca un rango dentro de `[]` (como `A-Z`), `$` marca el
+final (o un `$` literal si va con `\`), `+` es "uno o más" y `*` es "cero o más". Los usé en el
+login para validar el email y la contraseña.
