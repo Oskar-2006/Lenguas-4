@@ -85,6 +85,15 @@
                 </li>
             </ul>
 
+            <!-- segunda lista, separada: no es parte del CRUD de heroes sino
+                 de los usuarios del juego (game.html) -->
+            <h2 class="sidebar-titulo sidebar-titulo--separado">Juego</h2>
+            <ul class="sidebar-lista">
+                <li>
+                    <button class="sidebar-item" data-seccion="usuarios">Usuarios y partidas</button>
+                </li>
+            </ul>
+
             <!-- borra lo guardado en localStorage y vuelve a los 10 heroes
                  de data.js. hace falta porque, una vez que hay datos
                  guardados, editar data.js a mano ya no se ve reflejado -->
@@ -132,6 +141,8 @@
          data.js    declara "heroes" (los datos iniciales)
          storage.js lee localStorage y arma "listaHeroes" a partir de esos datos
          cards.js   define crearCarta() y el modal, que usa la seccion Leer
+         storage-usuarios.js carga los usuarios del juego y sus partidas (la
+                    seccion "Usuarios y partidas")
          credenciales.js declara "usuario" y "contrasena" de administracion
          login.js   valida el log in y, si es correcto, carga gestion.js
          gestion.js NO tiene <script> propio: busca los elementos del
@@ -140,6 +151,7 @@
     <script src="data.js"></script>
     <script src="storage.js"></script>
     <script src="cards.js"></script>
+    <script src="storage-usuarios.js"></script>
     <script src="credenciales.js"></script>
     <script src="login.js"></script>
 

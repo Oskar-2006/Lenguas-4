@@ -1,5 +1,46 @@
 # Limitaciones conocidas de Proyecto-1
 
+## Las contraseñas del juego quedan visibles en el navegador
+
+**Estado: conocido y aceptado, por la misma razón que la sección de abajo.**
+
+El login de `game.html` usa usuarios de dos lugares, y los dos se pueden
+leer desde el navegador:
+
+- `usuarios.json`: cualquiera puede abrirlo escribiendo su dirección en la
+  barra del navegador, o verlo en F12 → Network.
+- `localStorage` (clave `proyecto1-usuarios-juego`): la lista completa, con
+  los registrados y las partidas, visible en F12 → Application → Local Storage.
+
+Además, `gestion.html` → "Usuarios y partidas" muestra la columna de
+contraseñas **a propósito, solo para este ejercicio**.
+
+Las contraseñas se guardan tal cual, sin cifrar.
+
+Sirve para practicar `fetch()`, JSON, `find()` y `confirm()`. **No usar
+contraseñas reales.** La solución de verdad es la misma de abajo: un
+servidor que guarde los usuarios y compruebe la contraseña (idealmente
+guardada con un *hash*, nunca en texto plano).
+
+## Los registros y partidas NO se escriben solos en `usuarios.json`
+
+**Estado: conocido y aceptado. Una página estática no puede escribir
+archivos.**
+
+- `storage-usuarios.js` lee `usuarios.json` con `fetch()` y guarda la lista
+  completa (con ids, registros nuevos y partidas) en `localStorage`, **con
+  la misma forma que el archivo**.
+- Los cambios solo existen en el navegador donde se hicieron, y se pierden
+  si se borran los datos del sitio.
+- Para pasarlos al archivo: `gestion.html` → "Usuarios y partidas" →
+  **Descargar usuarios.json**, y reemplazar el `usuarios.json` del proyecto
+  a mano.
+- Los usuarios del `.json` se suman a `localStorage` **solo si su email no
+  está todavía**. Si se edita a mano un usuario que ya estaba (por ejemplo,
+  su contraseña), el cambio no se ve: manda lo guardado en el navegador.
+- `fetch()` no funciona si la página se abre con doble clic (`file://`):
+  hay que usar Live Server.
+
 ## El log in NO impide operaciones CRUD desde la consola
 
 **Estado: conocido y aceptado, no se va a "arreglar" porque no tiene arreglo

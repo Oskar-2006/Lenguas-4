@@ -31,6 +31,15 @@ body {
     margin: 0;
 }
 
+/* el atributo "hidden" oculta un elemento con un display: none que trae el
+   navegador, pero es la regla MAS DEBIL de todas: cualquier clase que diga
+   display: grid o flex le gana y el elemento se sigue viendo (le pasaba
+   al login de game.html, que tiene .login { display: grid }).
+   !important hace que hidden gane siempre, en todo el proyecto */
+[hidden] {
+    display: none !important;
+}
+
 /* contenedor de las 10 cartas: mobile-first, 1 columna y va agregando mas */
 .contenedor-cartas {
     display: grid;
@@ -1090,11 +1099,98 @@ label.campo-casilla input {
     }
 }
 
+/* ---------- login del juego (game.html) ---------- */
+
+/* lista de reglas de la contraseña. cada regla empieza con ✗ en gris y
+   pasa a ✓ en verde cuando game.js le pone la clase .regla--ok */
+.reglas-contrasena {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: #7c869a;
+}
+
+/* ::before agrega el simbolo delante del texto sin tocar el html */
+.reglas-contrasena li::before {
+    content: "✗ ";
+    color: var(--acento-claro-hover);
+}
+
+.reglas-contrasena li.regla--ok {
+    color: #7ed6a5;
+}
+
+.reglas-contrasena li.regla--ok::before {
+    content: "✓ ";
+    color: #7ed6a5;
+}
+
+/* boton bloqueado mientras falte algo: mas transparente y con el cursor
+   de "no permitido". la regla :disabled:hover le devuelve el color normal,
+   para que no se ilumine al pasar el mouse cuando todavia no se puede usar */
+.boton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.boton:disabled:hover {
+    background-color: var(--acento);
+}
+
 /* debajo de "Restablecer datos": mismo ancho y separado, pero con el
    estilo secundario porque cerrar sesion no borra nada */
 .sidebar-salir {
     width: 100%;
     margin-top: 8px;
+}
+
+/* ============================================================
+   USUARIOS Y PARTIDAS DEL JUEGO (gestion.html)
+   ============================================================ */
+
+/* el titulo "Juego" del sidebar, separado de la lista del CRUD de arriba */
+.sidebar-titulo--separado {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--acento-tenue);
+}
+
+/* conteo a la izquierda, boton de descargar a la derecha. en celular el
+   boton baja a otra fila en vez de aplastar el texto */
+.usuarios-juego-barra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.usuarios-juego-subtitulo {
+    margin: 28px 0 10px;
+    font-size: 0.8rem;
+    color: #7c869a;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* contraseña (columna 5) en letra monoespaciada: cada caracter ocupa lo
+   mismo, asi se distinguen mejor la O y el 0, o la l y el 1 */
+.tabla-usuarios td:nth-child(5) {
+    font-family: Consolas, "Courier New", monospace;
+    color: var(--acento-claro);
+}
+
+/* numeros alineados a la derecha, como en una planilla: asi las unidades
+   quedan una debajo de la otra */
+.tabla-partidas td:nth-child(1),
+.tabla-partidas td:nth-child(4),
+.tabla-partidas td:nth-child(5),
+.tabla-partidas td:nth-child(6) {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
 /* ============================================================
@@ -1159,4 +1255,535 @@ label.campo-casilla input {
    una sola columna en vez de todo el ancho */
 .contenedor-cartas .seccion-aviso {
     grid-column: 1 / -1;
+}
+
+/* ============================================================
+   FILTRO POR NIVEL DE FUERZA (index.html)
+   ============================================================ */
+
+/* barra fija abajo al centro. left: 50% pone su borde IZQUIERDO en la
+   mitad de la pantalla, y translateX(-50%) la corre hacia atras la mitad
+   de su propio ancho: asi queda centrada sin importar cuanto mida */
+.filtro-fuerza {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    /* por encima de las cartas, pero debajo del modal si esta abierto */
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    /* en pantallas angostas el select baja a una segunda fila en vez de
+       aplastar al slider */
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    width: min(920px, calc(100% - 32px));
+    box-sizing: border-box;
+    padding: 12px 20px;
+    background-color: rgba(16, 20, 28, 0.92);
+    border: 1px solid var(--acento-tenue);
+    /* 24px y no 999px: con dos filas en celular una pildora se veria
+       como un ovalo deformado */
+    border-radius: 24px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* cada filtro (etiqueta + control) es un grupo que se mantiene junto.
+   flex: 1 1 260px = crece para repartir el ancho, pero si no hay al menos
+   260px para cada uno, el segundo baja de fila */
+.filtro-fuerza-grupo {
+    flex: 1 1 260px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+/* ---------- menu de poderes con buscador ---------- */
+
+/* position: relative convierte al grupo en la "referencia" del panel:
+   el panel (position: absolute) se ubica respecto de este grupo y no de
+   toda la pagina */
+.filtro-poder {
+    position: relative;
+}
+
+/* el boton ocupa el resto del grupo, como antes lo hacia el select.
+   justify-content: space-between manda el texto a la izquierda y la
+   flecha a la derecha */
+.filtro-poder-boton {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    background-color: #10141c;
+    color: #b7c0cf;
+    border: 1px solid var(--acento-tenue);
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.filtro-poder-boton:hover,
+.filtro-poder-boton:focus-visible,
+.filtro-poder-boton[aria-expanded="true"] {
+    border-color: var(--acento);
+}
+
+/* si el nombre del poder es muy largo se corta con "..." en vez de
+   agrandar el boton */
+#texto-poder {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* la flecha gira 180° (queda apuntando hacia arriba) mientras el panel
+   esta abierto, para indicar que el menu se abre hacia arriba */
+.filtro-poder-flecha {
+    transition: transform 0.2s;
+}
+
+.filtro-poder-boton[aria-expanded="true"] .filtro-poder-flecha {
+    transform: rotate(180deg);
+}
+
+/* el panel se abre HACIA ARRIBA: la barra esta pegada al borde de abajo
+   de la pantalla, asi que hacia abajo no hay lugar. bottom: calc(100% + 8px)
+   = su borde de abajo queda 8px por encima del borde de arriba del grupo */
+.filtro-poder-panel {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    padding: 8px;
+    background-color: #10141c;
+    border: 1px solid var(--acento);
+    border-radius: 10px;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.filtro-poder-buscar {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    color-scheme: dark;
+    background-color: #1a2030;
+    color: #e3e8f0;
+    border: 1px solid var(--acento-tenue);
+    border-radius: 6px;
+}
+
+.filtro-poder-buscar:focus {
+    outline: none;
+    border-color: var(--acento);
+}
+
+/* altura maxima + overflow-y: auto = si hay muchos poderes aparece una
+   barra de scroll adentro del panel, en vez de que crezca fuera de la pantalla */
+.filtro-poder-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.filtro-poder-opcion,
+.filtro-poder-vacio {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+.filtro-poder-opcion {
+    color: #b7c0cf;
+    cursor: pointer;
+}
+
+/* la resaltada con el mouse o con las flechas del teclado se ven igual */
+.filtro-poder-opcion:hover,
+.filtro-poder-opcion--activa {
+    background-color: var(--acento-tenue);
+    color: var(--acento-claro);
+}
+
+/* el poder que esta aplicado como filtro ahora mismo */
+.filtro-poder-opcion[aria-selected="true"] {
+    font-weight: bold;
+    color: var(--acento);
+}
+
+.filtro-poder-vacio {
+    color: #7c869a;
+    font-style: italic;
+}
+
+/* ---------- boton de reiniciar filtros ---------- */
+
+/* flex: 0 0 auto = no crece ni se achica, mide lo que mida su texto.
+   margin-left: auto lo empuja al extremo derecho de su fila (tambien
+   cuando baja sola a otra fila en el celular) */
+.filtro-reiniciar {
+    flex: 0 0 auto;
+    margin-left: auto;
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    border: 1px solid var(--acento-tenue);
+    border-radius: 6px;
+    background-color: transparent;
+    color: #b7c0cf;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+}
+
+.filtro-reiniciar:hover:not(:disabled) {
+    background-color: var(--acento-tenue);
+    color: var(--acento-claro);
+}
+
+/* desactivado: mas transparente y con el cursor de "no permitido", para
+   que se note que ahora no hay nada que reiniciar */
+.filtro-reiniciar:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.filtro-fuerza-etiqueta {
+    font-size: 0.85rem;
+    color: #b7c0cf;
+    white-space: nowrap;
+}
+
+/* flex: 1 hace que el slider ocupe todo el espacio que sobra entre la
+   etiqueta y el numero. accent-color pinta la barra y el boton del slider
+   con el color de acento, sin tener que redisenarlo a mano */
+.filtro-fuerza-slider {
+    flex: 1;
+    min-width: 0;
+    accent-color: var(--acento);
+    cursor: pointer;
+}
+
+/* ancho fijo para que la barra no "salte" al pasar de 9 a 10 o de 99 a 100 */
+.filtro-fuerza-valor {
+    min-width: 3ch;
+    text-align: right;
+    font-weight: bold;
+    color: var(--acento-claro);
+}
+
+/* la barra fija tapa lo que hay debajo de ella: este espacio extra al final
+   de la pagina evita que tape la ultima fila de cartas. :has() hace que
+   solo aplique en la pagina que tiene el slider, y no en gestion.html */
+body:has(.filtro-fuerza) {
+    /* 150px y no menos: en celular la barra ocupa dos filas */
+    padding-bottom: 150px;
+}
+
+/* ============================================================
+   MEMORY DE HEROES (game.html)
+   ============================================================
+   adaptado del style.css de "cardGame" (Julian Bejarano, licencia MIT,
+   ver memory.js). el original traia un reset global (* { margin: 0 }),
+   estilos para body y header, y su propio :root: pegado tal cual habria
+   desarmado el login y las otras paginas. por eso aca TODOS los selectores
+   empiezan con #seccion-juego y se usan las variables del proyecto
+   (--acento, --acento-tenue...) en vez de las del original */
+
+#seccion-juego {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+#seccion-juego .juego-encabezado {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--acento-tenue);
+}
+
+#seccion-juego .juego-encabezado .gestion-titulo {
+    margin: 0;
+}
+
+#seccion-juego .juego-instrucciones {
+    margin: 16px 0;
+}
+
+/* ---------- HUD ---------- */
+
+#seccion-juego .juego-hud {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+}
+
+/* cada dato: el numero grande arriba y la etiqueta chica abajo */
+#seccion-juego .juego-hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 52px;
+}
+
+#seccion-juego .juego-hud-valor {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--acento);
+    line-height: 1;
+    /* numeros de ancho fijo: el cronometro no "tiembla" al pasar de 1 a 2 */
+    font-variant-numeric: tabular-nums;
+}
+
+#seccion-juego .juego-hud-valor--peligro {
+    color: var(--acento-claro-hover);
+}
+
+#seccion-juego .juego-hud-etiqueta {
+    font-size: 0.65rem;
+    color: #7c869a;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ---------- tablero ---------- */
+
+/* 4 columnas x 3 filas con 12 cartas. en celular, 3 x 4 */
+#seccion-juego .juego-tablero {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding-bottom: 40px;
+}
+
+@media (max-width: 520px) {
+    #seccion-juego .juego-tablero {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+}
+
+/* el aviso de "se necesitan 2 heroes" ocupa todo el ancho del grid */
+#seccion-juego .juego-tablero .aviso {
+    grid-column: 1 / -1;
+}
+
+/* ---------- cartas (efecto 3D) ---------- */
+
+/* la carta es un <button>: se le quitan el borde, el fondo y el padding
+   que trae el navegador. perspective da la profundidad del giro 3D: sin
+   eso la carta se veria "aplastarse" en vez de girar */
+#seccion-juego .memory-carta {
+    aspect-ratio: 3 / 4;
+    perspective: 1000px;
+    padding: 0;
+    border: none;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+#seccion-juego .memory-carta:focus-visible {
+    outline: 2px solid var(--acento);
+    outline-offset: 3px;
+    border-radius: 12px;
+}
+
+#seccion-juego .memory-carta:disabled {
+    cursor: default;
+}
+
+/* el interior es lo que gira. preserve-3d mantiene a sus dos caras en el
+   mismo espacio 3D, asi una queda "detras" de la otra */
+#seccion-juego .memory-carta-interior {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#seccion-juego .memory-carta.volteada .memory-carta-interior,
+#seccion-juego .memory-carta.encontrada .memory-carta-interior {
+    transform: rotateY(180deg);
+}
+
+/* las dos caras, apiladas en el mismo lugar. backface-visibility: hidden
+   esconde la cara que queda de espaldas: sin eso se verian las dos a la
+   vez, una espejada encima de la otra */
+#seccion-juego .memory-carta-reverso,
+#seccion-juego .memory-carta-frente {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* reverso: lo que se ve al principio. mismas rayas diagonales del fondo de
+   la pagina, pero un poco mas marcadas. reemplaza a la imagen de Facebook
+   del original, que tenia fecha de vencimiento */
+#seccion-juego .memory-carta-reverso {
+    display: grid;
+    place-items: center;
+    background-color: #1b2230;
+    background-image: repeating-linear-gradient(
+        -20deg,
+        rgba(245, 207, 135, 0.08) 0px,
+        rgba(245, 207, 135, 0.08) 2px,
+        transparent 2px,
+        transparent 14px
+    );
+    border: 1px solid var(--acento-tenue);
+    transition: border-color 0.2s;
+}
+
+#seccion-juego .memory-carta-reverso span {
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: var(--acento);
+    opacity: 0.7;
+}
+
+#seccion-juego .memory-carta:not(:disabled):hover .memory-carta-reverso {
+    border-color: var(--acento);
+}
+
+/* frente: el heroe. ya viene girado 180°: cuando el interior gira otros
+   180°, suma 360° y queda derecho, mirando hacia adelante.
+   --color-heroe lo pone memory.js en cada carta (colorPrincipal del heroe) */
+#seccion-juego .memory-carta-frente {
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    background-color: #1b2230;
+    border: 2px solid var(--color-heroe);
+    color: #e8ecf3;
+}
+
+/* el logo sobre un degradado del color del heroe. min-height: 0 deja que
+   la imagen se achique dentro del flex en vez de desbordar la carta */
+#seccion-juego .memory-carta-imagen {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    padding: 12%;
+    background: radial-gradient(circle, var(--color-heroe) 0%, #1b2230 75%);
+}
+
+#seccion-juego .memory-carta-imagen img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#seccion-juego .memory-carta-nombre {
+    margin: 0;
+    padding: 6px 8px 0;
+    font-size: 0.78rem;
+    font-weight: bold;
+    line-height: 1.2;
+    text-align: center;
+}
+
+#seccion-juego .memory-carta-fuerza {
+    margin: 0;
+    padding: 2px 8px 8px;
+    font-size: 0.7rem;
+    color: var(--acento);
+    text-align: center;
+}
+
+/* pareja encontrada: borde y brillo verdes (el mismo verde de .aviso--exito) */
+#seccion-juego .memory-carta.encontrada .memory-carta-frente {
+    border-color: #1f9d55;
+    box-shadow: 0 0 0 2px #1f9d55, 0 0 18px rgba(31, 157, 85, 0.35);
+}
+
+#seccion-juego .memory-carta.encontrada .memory-carta-nombre {
+    color: #7ed6a5;
+}
+
+/* quien tiene activado "reducir movimiento" en su sistema ve las cartas
+   cambiar de cara sin la animacion de giro */
+@media (prefers-reduced-motion: reduce) {
+    #seccion-juego .memory-carta-interior {
+        transition: none;
+    }
+}
+
+/* ---------- ventana de victoria ---------- */
+
+/* cubre toda la pantalla. como tiene display: grid, hace falta la regla
+   [hidden] de abajo: si no, el display: grid le ganaria al atributo hidden
+   y la ventana se veria siempre */
+#seccion-juego .juego-victoria {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background-color: rgba(16, 20, 28, 0.92);
+    backdrop-filter: blur(6px);
+}
+
+#seccion-juego .juego-victoria[hidden] {
+    display: none;
+}
+
+/* misma caja que el login, para que se vea del mismo proyecto. la
+   animacion "juego-aparecer" es la "pop" del original, con otro nombre
+   para no chocar con otras animaciones del proyecto */
+#seccion-juego .juego-victoria-caja {
+    display: grid;
+    gap: 16px;
+    justify-items: center;
+    width: 100%;
+    max-width: 380px;
+    padding: 32px;
+    box-sizing: border-box;
+    text-align: center;
+    background-color: #1b2230;
+    border-left: 4px solid var(--acento);
+    border-radius: 4px 16px 4px 4px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    animation: juego-aparecer 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes juego-aparecer {
+    from { transform: scale(0.8) translateY(30px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+#seccion-juego .juego-victoria-caja .login-texto {
+    margin: 0;
+}
+
+#seccion-juego .juego-victoria-trofeo {
+    font-size: 3rem;
+}
+
+#seccion-juego .juego-victoria-stats {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
 }

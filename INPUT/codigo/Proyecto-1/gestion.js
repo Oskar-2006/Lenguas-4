@@ -31,6 +31,7 @@ const secciones = {
     leer: "Leer / Buscar un héroe",
     actualizar: "Actualizar un héroe",
     eliminar: "Eliminar un héroe",
+    usuarios: "Usuarios y partidas del juego",
 };
 
 // archivos que existen dentro de la carpeta img/. se listan a mano porque
@@ -96,6 +97,11 @@ function mostrarSeccion(nombreSeccion) {
 
     if (nombreSeccion === "eliminar") {
         dibujarListaEliminar();
+        return;
+    }
+
+    if (nombreSeccion === "usuarios") {
+        dibujarUsuariosJuego();
         return;
     }
 
@@ -1230,6 +1236,179 @@ function mostrarAviso(mensaje, tipo) {
     const aviso = document.getElementById("crear-aviso");
     aviso.className = `aviso aviso--${tipo}`;
     aviso.textContent = mensaje;
+}
+
+// ============================================================
+// SECCION USUARIOS Y PARTIDAS DEL JUEGO
+// ============================================================
+// muestra los usuarios de game.html y las partidas que jugaron. los datos
+// los carga storage-usuarios.js (usuarios.json + localStorage).
+//
+// OJO: la columna de contraseñas se muestra A PROPOSITO, solo para este
+// ejercicio. en un sistema real nunca se muestran (ni se guardan asi)
+
+// arma una tabla a partir de un array de encabezados y un array de filas
+// (cada fila es un array de textos). usa createElement + textContent y NO
+// innerHTML: estos datos los escribio cualquiera al registrarse en el juego.
+// si alguien pusiera como alias <img src=x onerror="...">, con innerHTML el
+// navegador lo trataria como HTML y ejecutaria ese codigo. con textContent
+// se ve tal cual, como texto
+function crearTabla(encabezados, filas, claseExtra) {
+    const envoltorio = document.createElement("div");
+    envoltorio.className = "tabla-scroll";
+
+    const tabla = document.createElement("table");
+    tabla.className = `tabla-heroes ${claseExtra}`;
+
+    const filaEncabezado = document.createElement("tr");
+    encabezados.forEach(texto => {
+        const th = document.createElement("th");
+        th.textContent = texto;
+        filaEncabezado.appendChild(th);
+    });
+    const thead = document.createElement("thead");
+    thead.appendChild(filaEncabezado);
+
+    const tbody = document.createElement("tbody");
+    filas.forEach(celdas => {
+        const tr = document.createElement("tr");
+        celdas.forEach(texto => {
+            const td = document.createElement("td");
+            // String() por si llega un numero: textContent acepta los dos,
+            // pero asi queda claro que en la celda siempre va texto
+            td.textContent = String(texto);
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+
+    tabla.append(thead, tbody);
+    envoltorio.appendChild(tabla);
+    return envoltorio;
+}
+
+// "async" porque cargarUsuarios() espera a fetch("usuarios.json")
+async function dibujarUsuariosJuego() {
+    // todo se dibuja dentro de este bloque. se agrega YA a la pagina, vacio,
+    // para poder preguntar despues si sigue ahi (ver isConnected abajo)
+    const bloque = document.createElement("div");
+    bloque.className = "usuarios-juego";
+    bloque.textContent = "Cargando usuarios...";
+    contenedorGestion.appendChild(bloque);
+
+    const { usuarios, errorJson } = await cargarUsuarios();
+
+    // mientras se esperaba el fetch(), se pudo haber apretado otra seccion
+    // del sidebar: mostrarSeccion() ya vacio el contenedor y este bloque
+    // quedo fuera de la pagina. isConnected dice si un elemento sigue en la
+    // pagina; si no, no se dibuja nada (si no, la tabla apareceria encima
+    // de la otra seccion)
+    if (!bloque.isConnected) {
+        return;
+    }
+
+    bloque.textContent = "";
+
+    if (errorJson) {
+        const aviso = document.createElement("p");
+        aviso.className = "aviso aviso--error";
+        aviso.textContent = "No se pudo leer usuarios.json (abre la página con Live Server). Se muestran solo los datos guardados en este navegador.";
+        bloque.appendChild(aviso);
+    }
+
+    const partidas = todasLasPartidas(usuarios);
+
+    // ---------- barra superior: conteo + descargar ----------
+    const barra = document.createElement("div");
+    barra.className = "usuarios-juego-barra";
+
+    const conteo = document.createElement("p");
+    conteo.className = "tabla-conteo";
+    conteo.textContent = `${usuarios.length} usuarios · ${partidas.length} partidas registradas.`;
+
+    const botonDescargar = document.createElement("button");
+    botonDescargar.type = "button";
+    botonDescargar.className = "boton";
+    botonDescargar.textContent = "Descargar usuarios.json";
+    botonDescargar.addEventListener("click", () => descargarUsuariosJson(usuarios));
+
+    barra.append(conteo, botonDescargar);
+    bloque.appendChild(barra);
+
+    const ayuda = document.createElement("p");
+    ayuda.className = "login-texto";
+    ayuda.textContent = "La página no puede escribir en usuarios.json: descarga el archivo y reemplaza el del proyecto para que los registros y partidas queden guardados en él.";
+    bloque.appendChild(ayuda);
+
+    // ---------- tabla de usuarios ----------
+    const tituloUsuarios = document.createElement("h3");
+    tituloUsuarios.className = "usuarios-juego-subtitulo";
+    tituloUsuarios.textContent = "Usuarios";
+    bloque.appendChild(tituloUsuarios);
+
+    if (usuarios.length === 0) {
+        const aviso = document.createElement("p");
+        aviso.className = "seccion-aviso";
+        aviso.textContent = "Todavía no hay usuarios.";
+        bloque.appendChild(aviso);
+        return;
+    }
+
+    const filasUsuarios = usuarios.map(u => {
+        const mejor = mejorPartida(u, 6);
+        return [
+            u.id,
+            u.nombre,
+            u.alias,
+            u.email,
+            u.contrasena,
+            u.partidas.length,
+            mejor ? `${mejor.intentos} int. · ${formatearTiempo(mejor.tiempo)}` : "—",
+        ];
+    });
+
+    bloque.appendChild(crearTabla(
+        ["ID", "Nombre", "Alias", "Email", "Contraseña", "Partidas", "Récord (6 pares)"],
+        filasUsuarios,
+        "tabla-usuarios"
+    ));
+
+    // ---------- tabla de partidas ----------
+    const tituloPartidas = document.createElement("h3");
+    tituloPartidas.className = "usuarios-juego-subtitulo";
+    tituloPartidas.textContent = "Partidas";
+    bloque.appendChild(tituloPartidas);
+
+    if (partidas.length === 0) {
+        const aviso = document.createElement("p");
+        aviso.className = "seccion-aviso";
+        aviso.textContent = "Todavía nadie terminó una partida.";
+        bloque.appendChild(aviso);
+        return;
+    }
+
+    // cada partida junto con su usuario. flatMap: por cada usuario, un
+    // array con sus partidas; flatMap los junta todos en uno solo
+    const filasPartidas = usuarios
+        .flatMap(u => u.partidas.map(p => ({ usuario: u, partida: p })))
+        // la mas reciente primero. las fechas ISO se pueden comparar como
+        // texto: "2026-09-25..." > "2026-09-24..." da true, porque el
+        // formato va de lo mas grande (año) a lo mas chico (segundos)
+        .sort((a, b) => b.partida.fecha.localeCompare(a.partida.fecha))
+        .map(({ usuario, partida }) => [
+            partida.id,
+            `${usuario.alias} (#${usuario.id})`,
+            formatearFecha(partida.fecha),
+            partida.intentos,
+            formatearTiempo(partida.tiempo),
+            partida.pares,
+        ]);
+
+    bloque.appendChild(crearTabla(
+        ["ID partida", "Usuario", "Fecha", "Intentos", "Tiempo", "Pares"],
+        filasPartidas,
+        "tabla-partidas"
+    ));
 }
 
 // ============================================================

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- hace que en el celular la pagina se vea a su ancho real, no como una version reducida de una pagina de escritorio -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego - Heroes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ============================================================
+         LOGIN DEL JUEGO
+         ============================================================
+         usa las mismas clases que el login de gestion.html (.login,
+         .login-caja, .campo, .boton) para que se vea del mismo proyecto.
+         "novalidate" apaga los globos de error que el navegador muestra
+         solo: la validacion la hace game.js, con sus propios mensajes -->
+    <section id="seccion-login" class="login">
+        <form id="formulario-login" class="login-caja" novalidate>
+            <h1 class="gestion-titulo">Entrar al juego</h1>
+            <p class="login-texto">Completa tus datos para empezar.</p>
+
+            <!-- vacio salvo que usuarios.json no se pueda leer (por ejemplo,
+                 si la pagina se abrio con doble clic en vez de con Live Server).
+                 va aparte de #aviso-login porque ese se borra al escribir -->
+            <p id="aviso-datos" aria-live="polite"></p>
+
+            <div class="campo">
+                <label for="login-nombre">Nombre</label>
+                <input type="text" id="login-nombre" autocomplete="name" required>
+            </div>
+
+            <div class="campo">
+                <label for="login-alias">Alias</label>
+                <input type="text" id="login-alias" autocomplete="nickname" required>
+            </div>
+
+            <!-- type="email" hace que el celular muestre el teclado con @,
+                 pero la validacion la hace game.js con una regex (el
+                 "novalidate" del form apaga la del navegador). la regla usa
+                 la misma lista ✓/✗ que la contraseña -->
+            <div class="campo">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" autocomplete="email"
+                       aria-describedby="reglas-email" required>
+                <ul id="reglas-email" class="reglas-contrasena">
+                    <li data-regla-email="formato">Formato válido (ej: nombre@correo.com)</li>
+                </ul>
+            </div>
+
+            <!-- aria-describedby conecta el campo con la lista de reglas: un
+                 lector de pantalla las lee al entrar en la contraseña -->
+            <div class="campo">
+                <label for="login-contrasena">Contraseña</label>
+                <input type="password" id="login-contrasena" autocomplete="new-password"
+                       aria-describedby="reglas-contrasena" required>
+
+                <!-- cada <li> es una regla. game.js le pone la clase
+                     "regla--ok" cuando se cumple, en cada tecla que se escribe.
+                     data-regla es el nombre con el que game.js encuentra cada una -->
+                <ul id="reglas-contrasena" class="reglas-contrasena">
+                    <li data-regla="largo">Al menos 6 caracteres</li>
+                    <li data-regla="numeros">Al menos 6 números</li>
+                    <li data-regla="mayusculas">Al menos 2 mayúsculas</li>
+                    <li data-regla="dolar">Al menos un símbolo $</li>
+                </ul>
+            </div>
+
+            <!-- vacio hasta que game.js escribe un error. aria-live="polite"
+                 hace que un lector de pantalla lea el mensaje apenas aparece -->
+            <p id="aviso-login" aria-live="polite"></p>
+
+            <!-- empieza "disabled": game.js lo activa solo cuando los tres
+                 campos estan completos y la contraseña cumple todas las reglas -->
+            <button type="submit" id="boton-continuar" class="boton" disabled>Continuar</button>
+        </form>
+    </section>
+
+    <!-- ============================================================
+         JUEGO: MEMORY DE HEROES
+         ============================================================
+         arranca oculto con "hidden". game.js lo muestra despues del login
+         y llama a iniciarMemory() (de memory.js) para repartir las cartas.
+         adaptado de "cardGame" de Julian Bejarano (licencia MIT), ver
+         el aviso completo al principio de memory.js -->
+    <section id="seccion-juego" class="juego" hidden>
+
+        <header class="juego-encabezado">
+            <h1 id="saludo-juego" class="gestion-titulo"></h1>
+
+            <!-- HUD (heads-up display): los datos de la partida en vivo.
+                 los numeros los escribe memory.js -->
+            <div class="juego-hud">
+                <div class="juego-hud-item">
+                    <span class="juego-hud-valor" id="hud-tiempo">00:00</span>
+                    <span class="juego-hud-etiqueta">Tiempo</span>
+                </div>
+                <div class="juego-hud-item">
+                    <span class="juego-hud-valor" id="hud-intentos">0</span>
+                    <span class="juego-hud-etiqueta">Intentos</span>
+                </div>
+                <div class="juego-hud-item">
+                    <span class="juego-hud-valor" id="hud-pares">0/0</span>
+                    <span class="juego-hud-etiqueta">Pares</span>
+                </div>
+                <div class="juego-hud-item">
+                    <span class="juego-hud-valor" id="hud-record">—</span>
+                    <span class="juego-hud-etiqueta">Tu récord</span>
+                </div>
+                <button type="button" id="juego-reiniciar" class="boton-secundario">↺ Reiniciar</button>
+            </div>
+        </header>
+
+        <p class="login-texto juego-instrucciones">
+            Voltea las cartas de a dos y encuentra las parejas de héroes. El tiempo empieza con la primera carta.
+        </p>
+
+        <!-- vacio a proposito: memory.js crea una carta por cada heroe (dos
+             veces, para formar las parejas) -->
+        <div id="juego-tablero" class="juego-tablero"></div>
+
+        <!-- ventana de victoria: oculta hasta encontrar todos los pares.
+             role="dialog" + aria-modal le dicen al lector de pantalla que es
+             una ventana encima de la pagina -->
+        <div id="juego-victoria" class="juego-victoria" hidden>
+            <div class="juego-victoria-caja" role="dialog" aria-modal="true" aria-labelledby="victoria-titulo">
+                <div class="juego-victoria-trofeo" aria-hidden="true">🏆</div>
+                <h2 id="victoria-titulo" class="gestion-titulo">¡Lo lograste!</h2>
+                <p id="victoria-record" class="login-texto"></p>
+
+                <div class="juego-victoria-stats">
+                    <div class="juego-hud-item">
+                        <span class="juego-hud-valor" id="victoria-tiempo">00:00</span>
+                        <span class="juego-hud-etiqueta">Tiempo</span>
+                    </div>
+                    <div class="juego-hud-item">
+                        <span class="juego-hud-valor" id="victoria-intentos">0</span>
+                        <span class="juego-hud-etiqueta">Intentos</span>
+                    </div>
+                    <div class="juego-hud-item">
+                        <span class="juego-hud-valor" id="victoria-pares">0/0</span>
+                        <span class="juego-hud-etiqueta">Pares</span>
+                    </div>
+                </div>
+
+                <button type="button" id="juego-de-nuevo" class="boton">Jugar de nuevo</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- el orden importa:
+         data.js             declara "heroes" (los datos iniciales)
+         storage.js          arma "listaHeroes" con lo guardado en localStorage (o con data.js)
+         storage-usuarios.js carga y guarda usuarios y partidas (usuarios.json + localStorage)
+         game.js             el login; al entrar llama a iniciarMemory()
+         memory.js           el juego, que reparte cartas a partir de "listaHeroes" -->
+    <script src="data.js"></script>
+    <script src="storage.js"></script>
+    <script src="storage-usuarios.js"></script>
+    <script src="game.js"></script>
+    <script src="memory.js"></script>
+</body>
+</html>

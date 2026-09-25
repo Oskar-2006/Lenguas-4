@@ -1,0 +1,18 @@
+[
+    {
+        "id": 1,
+        "nombre": "Jugador Demo",
+        "alias": "demo",
+        "email": "demo@juego.com",
+        "contrasena": "AB$123456",
+        "partidas": []
+    },
+    {
+        "id": 2,
+        "nombre": "Jugador Invitado",
+        "alias": "invitado",
+        "email": "invitado@juego.com",
+        "contrasena": "XY$654321",
+        "partidas": []
+    }
+]
