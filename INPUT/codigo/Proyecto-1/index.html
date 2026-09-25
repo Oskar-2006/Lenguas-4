@@ -26,6 +26,50 @@
     <!-- contenedor vacio: el JS genera una carta por cada objeto del array "heroes" -->
     <div id="contenedor-cartas" class="contenedor-cartas"></div>
 
+    <!-- barra fija abajo al centro con dos filtros, uno al lado del otro -->
+    <section class="filtro-fuerza" aria-label="Filtrar por nivel de fuerza y por poder">
+        <!-- slider: muestra solo los heroes con "niveldefuerza" mayor o igual
+             al valor elegido. <output> es la etiqueta de html pensada para
+             mostrar un resultado calculado; "for" lo asocia al slider -->
+        <div class="filtro-fuerza-grupo">
+            <label for="slider-fuerza" class="filtro-fuerza-etiqueta">Fuerza mínima</label>
+            <input type="range" id="slider-fuerza" class="filtro-fuerza-slider" min="0" max="100" step="1" value="0">
+            <output id="valor-fuerza" for="slider-fuerza" class="filtro-fuerza-valor">0</output>
+        </div>
+
+        <!-- menu de poderes hecho a mano (un <select> nativo no deja meter un
+             buscador adentro de su lista). partes:
+             - el boton abre/cierra el panel y muestra el poder elegido
+             - el panel empieza con "hidden" (oculto) y tiene el buscador + la lista
+             - la lista <ul> empieza vacia: index.js crea un <li> por poder
+             los atributos aria-* le cuentan a un lector de pantalla que esto
+             funciona como una lista de opciones (role="listbox") y si esta
+             abierta o cerrada (aria-expanded) -->
+        <div class="filtro-fuerza-grupo filtro-poder" id="filtro-poder">
+            <span class="filtro-fuerza-etiqueta" id="etiqueta-poder">Poder</span>
+            <button type="button" id="boton-poder" class="filtro-poder-boton"
+                    aria-haspopup="listbox" aria-expanded="false" aria-controls="panel-poder"
+                    aria-labelledby="etiqueta-poder boton-poder">
+                <span id="texto-poder">Todos los poderes</span>
+                <span class="filtro-poder-flecha" aria-hidden="true">▾</span>
+            </button>
+
+            <div id="panel-poder" class="filtro-poder-panel" hidden>
+                <input type="search" id="buscar-poder" class="filtro-poder-buscar"
+                       placeholder="Buscar poder..." aria-label="Buscar poder"
+                       autocomplete="off" aria-controls="lista-poder">
+                <ul id="lista-poder" class="filtro-poder-lista" role="listbox" aria-label="Poderes"></ul>
+            </div>
+        </div>
+
+        <!-- vuelve los tres filtros (bando, fuerza y poder) a como estan al
+             abrir la pagina. empieza "disabled" porque al principio no hay
+             nada que reiniciar; index.js lo activa apenas se aplica un filtro -->
+        <button type="button" id="boton-reiniciar" class="filtro-reiniciar" disabled>
+            <span aria-hidden="true">↺</span> Reiniciar filtros
+        </button>
+    </section>
+
     <!-- modal de detalle: uno solo, reutilizado para cualquier heroe en el que se haga click -->
     <div id="modal" class="modal oculto">
         <!-- capa oscura detras del cuadro del modal; al hacer click aca tambien se cierra -->
