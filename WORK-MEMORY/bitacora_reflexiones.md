@@ -82,3 +82,7 @@ expresiones regulares que arman secuencias: `()` agrupa, `[]` define un conjunto
 `{}` indica cuántas veces se repite, `-` marca un rango dentro de `[]` (como `A-Z`), `$` marca el
 final (o un `$` literal si va con `\`), `+` es "uno o más" y `*` es "cero o más". Los usé en el
 login para validar el email y la contraseña.
+
+## 2026-10-01
+
+La reflexión es hacer la tarea, porque cuando la piden es para usarla.
