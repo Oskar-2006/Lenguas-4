@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Ossai Emmanuel" url="https://ossai.design/">
+  <header>
+    <logo>Ossai</logo>
+    <nav tipo="fija">
+      <enlace>Craft</enlace>
+      <enlace>Interactions</enlace>
+      <enlace>Experience</enlace>
+      <enlace>About</enlace>
+      <enlace>Contact</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Introducción con metáfora de samurái</section>
+    <section tipo="proyectos">Casos de estudio destacados</section>
+    <section tipo="interacciones">Micro-interacciones y animaciones de UI</section>
+    <section tipo="experiencia">Trayectoria 2021-presente</section>
+    <section tipo="testimonios">Testimonios</section>
+    <section tipo="cta">Contacto y redes</section>
+  </main>
+  <footer>
+    <redes>LinkedIn, X, Dribbble, Layers, GitHub</redes>
+    <contacto>Correo electrónico</contacto>
+  </footer>
+</sitio>

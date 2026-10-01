@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Krasimir Stoimenov" url="https://kstoimenov.com/">
+  <header>
+    <logo>Krasimir Stoimenov</logo>
+    <nav tipo="fija">
+      <enlace>Work</enlace>
+      <enlace>Services</enlace>
+      <enlace>Pricing</enlace>
+      <enlace>About</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">From Wireframes to Wow's</section>
+    <section tipo="metricas">Cifras: años, proyectos y horas de investigación</section>
+    <section tipo="about">Credenciales y trayectoria</section>
+    <section tipo="servicios">Seis disciplinas en tarjetas</section>
+    <section tipo="proyectos">Trabajos destacados</section>
+    <section tipo="cita">Frase destacada</section>
+    <section tipo="reel">PlayReal: reel de trabajo</section>
+    <section tipo="testimonios">Citas de clientes</section>
+    <section tipo="aliados">Logos de marcas</section>
+    <section tipo="cta">Invitación a ver el trabajo y reservar</section>
+  </main>
+  <footer>
+    <redes>LinkedIn, X, Behance, Dribbble, Awwwards</redes>
+    <contacto>Enlace de reserva de llamada</contacto>
+  </footer>
+</sitio>

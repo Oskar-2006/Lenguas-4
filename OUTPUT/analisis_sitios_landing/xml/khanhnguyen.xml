@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Khanh Nguyen" url="https://khanhnguyen.design/">
+  <header>
+    <logo>no detectado</logo>
+    <nav tipo="overlay-fullscreen">
+      <enlace>Primary (enlaces no verificados)</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="loading">Introducción de carga</section>
+    <section tipo="proyectos">Selected work</section>
+    <section tipo="servicios">Services</section>
+    <section tipo="clientes">Clients</section>
+    <section tipo="about">About</section>
+    <section tipo="proyectos">More work</section>
+    <section tipo="contacto">Contact</section>
+  </main>
+  <footer>
+    <redes>Navegación Social (enlaces no verificados)</redes>
+    <contacto>Sección Contact</contacto>
+  </footer>
+</sitio>

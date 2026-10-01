@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Khaled Oghli" url="https://www.khaledoghli.com/">
+  <header>
+    <logo>Khaled Oghli</logo>
+    <nav tipo="fija">
+      <enlace>About</enlace>
+      <enlace>Skills</enlace>
+      <enlace>Projects</enlace>
+      <enlace>Contact</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Introducción animada con tagline y CTA</section>
+    <section tipo="atmosphere">Sección atmosférica con elementos 3D</section>
+    <section tipo="skills">Capacidades y expertise</section>
+    <section tipo="proyectos">Proyectos destacados</section>
+    <section tipo="testimonios">Testimonios</section>
+    <section tipo="certificados">Certificados</section>
+    <section tipo="premios">Reconocimientos</section>
+    <section tipo="contacto">Llamada a contactar</section>
+  </main>
+  <footer>
+    <redes>GitHub, LinkedIn, X</redes>
+    <contacto>Correo y botón Hire Me</contacto>
+  </footer>
+</sitio>
