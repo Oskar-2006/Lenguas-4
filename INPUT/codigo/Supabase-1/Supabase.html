@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase - Tareas</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <main>
+    <h1>Tareas</h1>
+
+    <form id="formulario-tarea">
+      <input type="text" id="titulo-tarea" placeholder="Nueva tarea" required>
+      <button type="submit">Agregar</button>
+    </form>
+
+    <p id="mensaje" role="status"></p>
+    <ul id="lista-tareas"></ul>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabaseClient.js"></script>  <!-- 2° -->
+  <script src="js/datos.js"></script>           <!-- 3° -->
+  <script src="js/gestion.js"></script>         <!-- 4° -->
+</body>
+</html>
