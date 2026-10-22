@@ -3,9 +3,9 @@
 // ============================================================
 // este archivo quedo corto a proposito: es solo el "armado" de la pagina.
 // el index.html carga, en este orden y ANTES que este archivo:
-//   data.js     los 10 heroes iniciales
-//   storage.js  recupera lo guardado en localStorage y arma "listaHeroes"
-//   cards.js    crearCarta(), el modal de detalle y el efecto de mouse
+//   data.js          los 10 heroes iniciales
+//   datos-heroes.js  trae los heroes de Supabase y arma "listaHeroes"
+//   cards.js         crearCarta(), el modal de detalle y el efecto de mouse
 // gracias a eso aca solo hace falta recorrer la lista y pedir las cartas.
 
 // ============================================================
@@ -15,8 +15,8 @@
 // carta con crearCarta() y se agrega al contenedor que existe en el html.
 //
 // la diferencia entre los dos arrays: "heroes" son los datos iniciales que
-// escribimos en data.js, y "listaHeroes" es lo que storage.js recupero de
-// localStorage. si nunca se creo ningun heroe son identicos, pero apenas
+// escribimos en data.js, y "listaHeroes" es lo que hay en la tabla de
+// Supabase. si nunca se creo ningun heroe son identicos, pero apenas
 // se agrega uno desde gestion.html solo "listaHeroes" lo tiene
 
 const contenedorCartas = document.getElementById("contenedor-cartas");
@@ -346,6 +346,20 @@ document.addEventListener("click", evento => {
 botonReiniciar.addEventListener("click", reiniciarFiltros);
 
 // al abrir la pagina se cargan los poderes y se muestran todos
-// (bando "Todos", fuerza minima 0 y todos los poderes)
-cargarOpcionesPoder();
-aplicarFiltros();
+// (bando "Todos", fuerza minima 0 y todos los poderes). antes hay que
+// esperar a que Supabase responda: sin el await, "listaHeroes" todavia
+// estaria vacia y la pagina no mostraria ninguna carta
+async function iniciarPagina() {
+    try {
+        await heroesListos;
+    } catch (error) {
+        console.error("No se pudieron cargar los héroes:", error);
+        contenedorCartas.textContent = "No se pudieron cargar los héroes de Supabase: " + error.message;
+        return;
+    }
+
+    cargarOpcionesPoder();
+    aplicarFiltros();
+}
+
+iniciarPagina();

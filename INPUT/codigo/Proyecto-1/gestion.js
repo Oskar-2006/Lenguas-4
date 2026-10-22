@@ -2,9 +2,10 @@
 // LOGICA DE LA PAGINA DE GESTION
 // ============================================================
 // igual que index.js, este archivo NO declara los datos: trabaja sobre
-// "listaHeroes", que arma storage.js a partir de lo guardado en
-// localStorage (o de los datos iniciales de data.js la primera vez).
-// gestion.html carga los dos ANTES que este archivo.
+// "listaHeroes", que arma datos-heroes.js con lo que trae de la tabla
+// "heroes" de Supabase. cada cambio (crear, editar, mover, eliminar) se
+// manda primero a Supabase y recien despues se aplica en "listaHeroes".
+// gestion.html carga datos-heroes.js ANTES que este archivo.
 //
 // index.js y gestion.js son dos archivos separados porque cada pagina
 // carga solo el suyo: la pagina de cartas no necesita la logica de
@@ -54,15 +55,13 @@ const imagenesDisponibles = [
 
 // medida maxima (en px) del lado mas largo de una imagen subida. las cartas
 // la muestran entre 28 y 96 px, asi que 256 alcanza incluso en pantallas de
-// alta densidad. achicarla importa porque las imagenes subidas se guardan
-// como TEXTO en localStorage, que tiene un limite de ~5 MB: una foto de 3 MB
-// ocuparia casi todo el espacio, y la misma foto a 256 px pesa unos pocos KB
+// alta densidad. ahora las imagenes se suben a Supabase Storage y ya no
+// hay limite de 5 MB, pero achicarla sigue valiendo la pena: una foto de
+// 3 MB tarda en subir y en cargar, y la misma foto a 256 px pesa pocos KB
 const LADO_MAXIMO_IMAGEN = 256;
 
-// el id que se le va a dar al proximo heroe creado. es "let" y no "const"
-// porque sube en uno con cada heroe nuevo. arranca en lo que haya
-// guardado storage.js (o en 11 la primera vez, despues de los 10 de data.js)
-let siguienteId = cargarSiguienteId(listaHeroes);
+// ya no hay "siguienteId": el id de cada heroe nuevo lo pone la base de
+// datos (columna autoincremental), igual que en la guia de Supabase
 
 // ============================================================
 // NAVEGACION DEL SIDEBAR
@@ -231,7 +230,7 @@ function dibujarListaHeroes() {
 
 // mueve un heroe que YA existe a un extremo de la lista. es distinto de
 // crear: aca no se agrega nada, se reubica lo que ya esta
-function moverHeroe(indice, destino) {
+async function moverHeroe(indice, destino) {
     // splice(indice, 1) borra 1 elemento desde esa posicion y DEVUELVE un
     // array con lo que saco. [0] toma el objeto de adentro de ese array.
     // primero hay que sacarlo, si no quedaria duplicado en la lista
@@ -243,7 +242,13 @@ function moverHeroe(indice, destino) {
         listaHeroes.push(heroe);
     }
 
-    guardarHeroes(listaHeroes);
+    // el array ya quedo en el orden nuevo; esto lo copia a la columna
+    // "orden" de la tabla. si falla, se vuelve a leer la tabla para que la
+    // pantalla no muestre un orden que no se guardo
+    if (!(await guardarOrden(listaHeroes))) {
+        alert("No se pudo guardar el nuevo orden.");
+        await cargarHeroes();
+    }
 
     // se redibuja la seccion entera: al moverse un heroe cambian los
     // indices de todos los demas, y tambien que botones van deshabilitados.
@@ -286,22 +291,24 @@ function dibujarBuscador() {
     pintarResultados("", contenedorCartas);
 }
 
-// filtra la lista y dibuja una carta por cada heroe que coincida
-function pintarResultados(textoBuscado, contenedorCartas) {
-    // se pasa todo a minusculas de los dos lados para que la busqueda no
-    // distinga mayusculas: "thor", "Thor" y "THOR" tienen que encontrar lo mismo
-    const busqueda = textoBuscado.trim().toLowerCase();
+// la ultima busqueda que se pidio. cada tecla lanza una consulta y las
+// respuestas pueden llegar desordenadas (la de "th" despues de la de
+// "thor"): si la respuesta que llega no es de la ultima busqueda, se ignora
+let ultimaBusqueda = "";
 
-    // filter() devuelve un array NUEVO con los elementos que cumplen la
-    // condicion, sin tocar el original. por eso "listaHeroes" queda intacta
-    // por mas que se busque: solo cambia lo que se dibuja
-    const encontrados = listaHeroes.filter(heroe => {
-        // includes() responde true/false segun si el texto esta adentro.
-        // se revisan tres campos y alcanza con que uno coincida (||)
-        return heroe.nombre.toLowerCase().includes(busqueda)
-            || heroe.universo.toLowerCase().includes(busqueda)
-            || heroe.bando.toLowerCase().includes(busqueda);
-    });
+// pide a Supabase los heroes que coinciden y dibuja una carta por cada uno
+async function pintarResultados(textoBuscado, contenedorCartas) {
+    const busqueda = textoBuscado.trim();
+    ultimaBusqueda = busqueda;
+
+    // antes esto era un filter() sobre "listaHeroes". ahora el filtro lo
+    // hace la base de datos (ver buscarHeroes en datos-heroes.js) y aca
+    // solo se espera la respuesta
+    const encontrados = await buscarHeroes(busqueda);
+
+    if (busqueda !== ultimaBusqueda) {
+        return;
+    }
 
     const conteo = document.getElementById("buscador-conteo");
     conteo.textContent = busqueda === ""
@@ -389,14 +396,25 @@ function dibujarListaActualizar() {
 // reemplaza la tabla por el formulario cargado con los datos de ese heroe.
 // se pasan las DOS cosas: el objeto (para llenar los campos) y el indice
 // (para saber despues cual posicion del array hay que reemplazar)
-function abrirEdicion(indice) {
-    const heroe = listaHeroes[indice];
+// antes de editar se le pide el heroe a la base por su id (READ por id).
+// asi el formulario arranca con lo que esta guardado ahora, aunque otra
+// persona lo haya cambiado desde otro computador despues de abrir la pagina
+async function abrirEdicion(indice) {
+    const heroe = await buscarHeroePorId(listaHeroes[indice].id);
 
+    if (heroe === null) {
+        alert("Ese héroe ya no existe en la base de datos.");
+        await cargarHeroes();
+        mostrarSeccion("actualizar");
+        return;
+    }
+
+    listaHeroes[indice] = heroe;
     contenedorGestion.innerHTML = `<h2 class="seccion-titulo">Editando a ${heroe.nombre}</h2>`;
     dibujarFormulario(heroe, indice);
 }
 
-function procesarEdicion(formulario, indice) {
+async function procesarEdicion(formulario, indice) {
     const heroeEditado = leerFormulario();
     const error = validarHeroe(heroeEditado);
 
@@ -405,24 +423,22 @@ function procesarEdicion(formulario, indice) {
         return;
     }
 
-    // asignacion directa a una posicion del array: REEMPLAZA el objeto que
-    // estaba ahi por el nuevo. a diferencia de crear, el array no cambia de
-    // largo — sigue teniendo la misma cantidad de heroes, solo que uno de
-    // ellos paso a ser otro objeto
-    const heroeAnterior = listaHeroes[indice];
+    // el id no sale del formulario (no se edita): sale del heroe que
+    // estaba en esa posicion. update() solo cambia las columnas que vienen
+    // en heroeEditado, asi que "orden" y "created_at" quedan como estaban
+    const id = listaHeroes[indice].id;
+    const actualizado = await actualizarHeroe(id, heroeEditado);
 
-    // leerFormulario() arma un objeto NUEVO que no trae id (el formulario
-    // no tiene campo de id, y no deberia: el id no se edita). se copia el
-    // del heroe anterior para que siga siendo el mismo heroe
-    heroeEditado.id = heroeAnterior.id;
-    listaHeroes[indice] = heroeEditado;
-
-    // si no se pudo guardar, se vuelve al objeto de antes
-    if (!guardarOAvisar(() => { listaHeroes[indice] = heroeAnterior; })) {
+    if (actualizado === null) {
+        mostrarAviso("No se pudieron guardar los cambios. Revisá la consola.", "error");
         return;
     }
 
-    mostrarAviso(`Cambios de "${heroeEditado.nombre}" guardados.`, "exito");
+    // recien cuando la base confirmo, se reemplaza en el array. se usa lo
+    // que devolvio Supabase (la fila guardada), no lo que se escribio
+    listaHeroes[indice] = actualizado;
+
+    mostrarAviso(`Cambios de "${actualizado.nombre}" guardados.`, "exito");
 }
 
 // ============================================================
@@ -484,7 +500,7 @@ function dibujarListaEliminar() {
     });
 }
 
-function eliminarHeroe(indice) {
+async function eliminarHeroe(indice) {
     const heroe = listaHeroes[indice];
 
     // borrar no se puede deshacer, asi que se pregunta antes. confirm()
@@ -495,13 +511,18 @@ function eliminarHeroe(indice) {
         return;
     }
 
-    // splice(indice, 1) saca 1 elemento desde esa posicion. es el mismo
-    // metodo que usamos para mover e insertar, con otros argumentos.
-    // no se usa delete listaHeroes[indice]: eso dejaria un hueco vacio en
-    // el array sin achicar su largo, y la tabla mostraria una fila rota
-    listaHeroes.splice(indice, 1);
+    // primero se borra en la base. si falla, el array no se toca: asi la
+    // pantalla nunca muestra borrado algo que sigue guardado
+    if (!(await borrarHeroe(heroe.id))) {
+        alert(`No se pudo eliminar a "${heroe.nombre}". Revisá la consola.`);
+        return;
+    }
 
-    guardarHeroes(listaHeroes);
+    // splice(indice, 1) saca 1 elemento desde esa posicion, para que la
+    // lista en memoria quede igual que la tabla. los demas heroes no
+    // necesitan cambiar su "orden": un hueco en los numeros no altera el
+    // orden en que se ordenan
+    listaHeroes.splice(indice, 1);
 
     // se redibuja entera porque al borrar uno se corren los indices de
     // todos los que estaban despues
@@ -555,12 +576,13 @@ function dibujarFormulario(heroe, indice) {
     };
 
     // de donde viene la imagen del heroe que se edita (al crear siempre
-    // arranca en "carpeta"). una imagen subida se guarda como un texto que
-    // empieza con "data:"; una ruta que esta en la lista de img/ es de la
+    // arranca en "carpeta"). una imagen subida es una URL de nuestro bucket
+    // de Supabase Storage; una ruta que esta en la lista de img/ es de la
     // carpeta; cualquier otra cosa se trata como una URL
     const esDeCarpeta = imagenesDisponibles.some(archivo => `img/${archivo}` === valores.imagen);
+    const esSubida = valores.imagen.startsWith(`${SUPABASE_URL}/storage/v1/object/public/${BUCKET_IMAGENES}/`);
     let fuenteImagen = "carpeta";
-    if (valores.imagen.startsWith("data:")) {
+    if (esSubida) {
         fuenteImagen = "archivo";
     } else if (valores.imagen !== "" && !esDeCarpeta) {
         fuenteImagen = "url";
@@ -615,8 +637,8 @@ function dibujarFormulario(heroe, indice) {
                         </select>
                         <input type="file" id="crear-imagen-archivo" accept="image/*" aria-label="Archivo de imagen">
                         <input type="url" id="crear-imagen-url" required placeholder="https://ejemplo.com/logo.png" aria-label="URL de la imagen">
-                        <!-- aca queda la imagen subida YA reducida y convertida a
-                             texto. el input file no sirve para guardarla: el JS
+                        <!-- aca queda la URL de la imagen ya subida a Supabase
+                             Storage. el input file no sirve para guardarla: el JS
                              no puede escribirle un valor propio, solo vaciarlo -->
                         <input type="hidden" id="crear-imagen-subida">
                         <p id="crear-imagen-estado" class="imagen-estado"></p>
@@ -893,8 +915,8 @@ function crearFilaPoder(poder) {
 // src="..." de un <img>, venga de donde venga:
 //   carpeta -> una ruta relativa, ej. "img/thor.svg"
 //   url     -> la direccion completa, ej. "https://sitio.com/logo.png"
-//   archivo -> un "data URL": el contenido de la imagen escrito como texto
-//              ("data:image/webp;base64,....")
+//   archivo -> la URL publica del archivo subido al bucket de Supabase
+//              Storage ("https://...supabase.co/storage/v1/object/public/heroes/...")
 // por eso index.html, las tablas y el modal no necesitan saber de cual de
 // las tres viene: todas se dibujan igual
 
@@ -950,10 +972,10 @@ function mostrarEstadoImagen(mensaje, esError) {
     estado.className = esError ? "imagen-estado imagen-estado--error" : "imagen-estado";
 }
 
-// se ejecuta cuando el estudiante elige un archivo. el resultado (la imagen
-// ya reducida, como texto) queda en el input oculto, que es del que lee
+// se ejecuta cuando el estudiante elige un archivo: la reduce, la sube a
+// Supabase Storage y deja su URL en el input oculto, que es del que lee
 // leerImagen() al enviar el formulario
-function procesarArchivoImagen(evento) {
+async function procesarArchivoImagen(evento) {
     const campoArchivo = evento.target;
     const archivo = campoArchivo.files[0];
 
@@ -970,36 +992,46 @@ function procesarArchivoImagen(evento) {
         return;
     }
 
-    // reducirImagen() no devuelve el resultado: devuelve una Promise, una
-    // promesa de que el resultado va a llegar mas tarde. leer y dibujar una
-    // imagen lleva tiempo y el JS no se queda esperando: sigue con lo demas
-    // y avisa por .then() cuando termina, o por .catch() si algo fallo
-    reducirImagen(archivo)
-        .then(datos => {
-            // si mientras tanto se cambio de seccion, el formulario ya no existe
-            if (!campoArchivo.isConnected) {
-                return;
-            }
-
-            document.getElementById("crear-imagen-subida").value = datos;
-            actualizarVistaPrevia();
-
-            const enKB = bytes => Math.max(1, Math.round(bytes / 1024));
-            mostrarEstadoImagen(`Lista: de ${enKB(archivo.size)} KB a ${enKB(datos.length)} KB.`, false);
-        })
-        .catch(() => {
-            if (!campoArchivo.isConnected) {
-                return;
-            }
-
+    // reducirImagen() devuelve una Promise (antes se esperaba con .then()).
+    // ahora se usa await, igual que con Supabase: es la misma idea escrita
+    // de otra forma. si la promesa falla, await lanza el error y lo
+    // atrapa el catch
+    let reducida;
+    try {
+        reducida = await reducirImagen(archivo);
+    } catch (error) {
+        if (campoArchivo.isConnected) {
             campoArchivo.value = "";
             mostrarEstadoImagen("No se pudo leer esa imagen.", true);
-        });
+        }
+        return;
+    }
+
+    mostrarEstadoImagen("Subiendo imagen...", false);
+    const url = await subirImagen(reducida);
+
+    // si mientras tanto se cambio de seccion, el formulario ya no existe
+    if (!campoArchivo.isConnected) {
+        return;
+    }
+
+    if (url === null) {
+        campoArchivo.value = "";
+        mostrarEstadoImagen("No se pudo subir la imagen. Revisá la consola.", true);
+        return;
+    }
+
+    document.getElementById("crear-imagen-subida").value = url;
+    actualizarVistaPrevia();
+
+    const enKB = bytes => Math.max(1, Math.round(bytes / 1024));
+    mostrarEstadoImagen(`Subida: de ${enKB(archivo.size)} KB a ${enKB(reducida.size)} KB.`, false);
 }
 
-// reduce la imagen a LADO_MAXIMO_IMAGEN y la devuelve como un data URL. el
-// truco es dibujarla en un <canvas> mas chico (que nunca se agrega a la
-// pagina) y pedirle al canvas que se exporte como texto
+// reduce la imagen a LADO_MAXIMO_IMAGEN y la devuelve como un Blob (un
+// archivo en memoria), que es lo que recibe Supabase Storage. el truco es
+// dibujarla en un <canvas> mas chico (que nunca se agrega a la pagina) y
+// pedirle al canvas que se exporte como archivo
 function reducirImagen(archivo) {
     return new Promise((resolver, rechazar) => {
         // createObjectURL da una direccion temporal (blob:...) que apunta al
@@ -1030,8 +1062,16 @@ function reducirImagen(archivo) {
             lienzo.getContext("2d").drawImage(imagen, 0, 0, lienzo.width, lienzo.height);
 
             // webp pesa poco y conserva la transparencia. un navegador que no
-            // sepa exportar webp devuelve png, que tambien sirve
-            resolver(lienzo.toDataURL("image/webp", 0.85));
+            // sepa exportar webp devuelve png, que tambien sirve.
+            // toBlob no devuelve el archivo: lo entrega a la funcion que se
+            // le pasa cuando termina (o null si no pudo)
+            lienzo.toBlob(blob => {
+                if (blob === null) {
+                    rechazar(new Error("No se pudo exportar la imagen"));
+                } else {
+                    resolver(blob);
+                }
+            }, "image/webp", 0.85);
         };
 
         imagen.onerror = () => {
@@ -1115,19 +1155,6 @@ function validarHeroe(heroe) {
     return null;
 }
 
-// guarda la lista. si no entra en localStorage, DESHACE el cambio que se
-// acababa de hacer en memoria (para que lo que se ve y lo que esta guardado
-// no queden distintos) y avisa. devuelve true si se guardo
-function guardarOAvisar(deshacer) {
-    if (guardarHeroes(listaHeroes)) {
-        return true;
-    }
-
-    deshacer();
-    mostrarAviso("No se pudo guardar: el almacenamiento del navegador está lleno. Probá con una imagen más liviana o eliminá algún héroe.", "error");
-    return false;
-}
-
 // recorre las filas del editor y devuelve el array de objetos
 // { nombre, nivel }, salteando las filas que quedaron sin nombre
 function leerPoderes() {
@@ -1146,7 +1173,7 @@ function leerPoderes() {
     return poderes;
 }
 
-function procesarCreacion(formulario) {
+async function procesarCreacion(formulario) {
     const heroeNuevo = leerFormulario();
     const error = validarHeroe(heroeNuevo);
 
@@ -1155,9 +1182,7 @@ function procesarCreacion(formulario) {
         return;
     }
 
-    // el id se asigna aca y no en leerFormulario(), porque esa funcion
-    // tambien la usa editar, y al editar el heroe ya tiene su id
-    heroeNuevo.id = siguienteId;
+    // el id ya no se asigna aca: lo pone la base de datos al insertar
 
     // la posicion NO es una propiedad del heroe (no existe en data.js): es
     // una instruccion sobre donde meterlo. por eso se lee aparte y no
@@ -1177,32 +1202,31 @@ function procesarCreacion(formulario) {
         posicion = Number(document.getElementById("crear-posicion-otro").value) - 1;
     }
 
+    // CREATE: el heroe se manda a Supabase. vuelve la fila ya guardada,
+    // con el id que le puso la base, o null si algo fallo
+    heroeNuevo.orden = posicion;
+    const creado = await insertarHeroe(heroeNuevo);
+
+    if (creado === null) {
+        mostrarAviso("No se pudo guardar el héroe. Revisá la consola.", "error");
+        return;
+    }
+
     // splice() sirve para insertar en CUALQUIER punto del array, no solo en
     // los extremos. sus 3 argumentos son:
     //   1) desde que indice actuar
     //   2) cuantos elementos borrar (0 = no borrar ninguno, solo insertar)
     //   3) que elemento agregar
     // con posicion 0 hace lo mismo que unshift(), y con posicion igual al
-    // largo del array lo mismo que push(): los reemplaza a los dos.
-    // modifica "listaHeroes" (la que armo storage.js), no "heroes": esa es
-    // la copia de los datos iniciales y se deja intacta
-    listaHeroes.splice(posicion, 0, heroeNuevo);
+    // largo del array lo mismo que push(): los reemplaza a los dos
+    listaHeroes.splice(posicion, 0, creado);
 
-    // este es el paso que hace que el heroe sobreviva a la recarga. sin
-    // esta linea el cambio solo existiria en memoria y se perderia al
-    // cambiar de pagina, que es justo el problema que teniamos antes.
-    // si no entra en el almacen, se saca el heroe que se acababa de insertar
-    if (!guardarOAvisar(() => listaHeroes.splice(posicion, 1))) {
-        return;
-    }
-
-    // el contador sube recien DESPUES de guardar bien: si el guardado
-    // fallaba, el heroe se descartaba y su id se puede volver a usar
-    siguienteId++;
-    guardarSiguienteId(siguienteId);
+    // al meterlo en un puesto del medio, los que quedaron detras se corren
+    // un lugar: guardarOrden() actualiza su columna "orden" en la tabla
+    await guardarOrden(listaHeroes);
 
     mostrarAviso(
-        `"${heroeNuevo.nombre}" agregado en el puesto ${posicion + 1} y guardado. Ahora hay ${listaHeroes.length} héroes.`,
+        `"${creado.nombre}" agregado en el puesto ${posicion + 1} con el id ${creado.id}. Ahora hay ${listaHeroes.length} héroes.`,
         "exito"
     );
 
@@ -1414,22 +1438,42 @@ async function dibujarUsuariosJuego() {
 // ============================================================
 // RESTABLECER LOS DATOS ORIGINALES
 // ============================================================
-// borra el almacen y recarga la pagina. la recarga es necesaria porque
-// "listaHeroes" ya esta en memoria con los datos viejos: volver a leerla
-// solo pasa cuando storage.js se ejecuta de nuevo, o sea al cargar la pagina
+// vacia la tabla de Supabase, vuelve a cargar los 10 heroes de data.js y
+// redibuja. ojo: ahora la tabla es UNA para todos, asi que esto lo ve
+// cualquiera que abra la pagina, no solo este navegador
 
-document.getElementById("restablecer").addEventListener("click", () => {
+document.getElementById("restablecer").addEventListener("click", async () => {
     // confirm() muestra un cuadro de Aceptar/Cancelar y devuelve true o
     // false. se usa porque la accion no se puede deshacer: si el estudiante
     // creo heroes, los pierde
     const seguro = confirm("Esto borra los héroes creados y vuelve a los 10 de data.js. ¿Continuar?");
 
-    if (seguro) {
-        restablecerHeroes();
-        location.reload();
+    if (!seguro) {
+        return;
     }
+
+    if (!(await restablecerHeroes())) {
+        alert("No se pudo restablecer. Revisá la consola.");
+    }
+
+    await cargarHeroes();
+    mostrarSeccion("mostrar");
 });
 
-// al abrir la pagina se muestra la primera seccion, para que el contenido
-// no arranque vacio (coincide con el boton que ya trae .activa en el HTML)
-mostrarSeccion("mostrar");
+// al abrir la pagina hay que ESPERAR a que lleguen los heroes de Supabase
+// antes de dibujar: sin el await, la primera seccion se dibujaria con la
+// lista todavia vacia. despues se muestra la primera seccion (coincide con
+// el boton que ya trae .activa en el HTML)
+async function iniciarGestion() {
+    try {
+        await heroesListos;
+    } catch (error) {
+        console.error("No se pudieron cargar los héroes:", error);
+        contenedorGestion.innerHTML = `<p class="seccion-aviso">No se pudieron cargar los héroes de Supabase: ${error.message}</p>`;
+        return;
+    }
+
+    mostrarSeccion("mostrar");
+}
+
+iniciarGestion();

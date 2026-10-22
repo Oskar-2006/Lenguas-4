@@ -5,7 +5,7 @@
 // de gestion.html necesita dibujar las mismas cartas y abrir el mismo
 // modal. en vez de copiarlo y mantener dos versiones que se van
 // desincronizando, se saco a su propio archivo y lo cargan las dos
-// paginas. es el mismo criterio con el que separamos data.js y storage.js:
+// paginas. es el mismo criterio con el que separamos data.js y datos-heroes.js:
 // cada cosa definida una sola vez, en el archivo que le corresponde.
 //
 // requisito: el HTML que lo cargue tiene que tener el bloque del #modal,

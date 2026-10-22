@@ -26,7 +26,7 @@
 //   USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 // cambios respecto del original:
-//   - las cartas salen de "listaHeroes" (storage.js) en vez de productos fijos
+//   - las cartas salen de "listaHeroes" (datos-heroes.js, desde Supabase) en vez de productos fijos
 //   - 6 heroes al azar por partida; el total de pares se calcula solo
 //   - las cartas son <button> (se pueden usar con teclado) y se arman con
 //     createElement + textContent en vez de innerHTML
@@ -361,9 +361,20 @@ botonDeNuevo.addEventListener("click", repartir);
 // la llama game.js despues del login. a diferencia del original, el juego
 // NO arranca solo al cargar la pagina: detras del login no hay nadie jugando.
 // "jugador" tiene que ser un objeto DE ADENTRO de "usuarios" (el mismo, no
-// una copia): asi, al agregarle una partida, la lista ya la tiene
-function iniciarMemory(jugador, usuarios) {
+// una copia): asi, al agregarle una partida, la lista ya la tiene.
+// es async porque antes de repartir hay que esperar a que los heroes
+// lleguen de Supabase (si el login fue muy rapido, todavia no estan)
+async function iniciarMemory(jugador, usuarios) {
     estado.jugador = jugador;
     estado.usuarios = usuarios;
+
+    try {
+        await heroesListos;
+    } catch (error) {
+        console.error("No se pudieron cargar los héroes:", error);
+        tablero.textContent = "No se pudieron cargar los héroes de Supabase: " + error.message;
+        return;
+    }
+
     repartir();
 }

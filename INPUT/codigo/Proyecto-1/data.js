@@ -13,7 +13,7 @@
 // aunque el heroe se mueva de puesto o se edite. el indice del array no
 // sirve para eso: si se borra o se mueve un heroe, los indices de los
 // demas se corren. los nuevos que se crean desde gestion.html siguen la
-// cuenta desde 11 (ver "siguienteId" en storage.js y gestion.js).
+// cuenta desde 11: el id lo pone Supabase (ver supabase/heroes.sql).
 //
 // "poderes" es un array de objetos { nombre, nivel } donde "nivel" (0-100)
 // se usa para dibujar la barrita de fuerza de cada poder.

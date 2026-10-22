@@ -40,8 +40,9 @@ const CLAVE_SIGUIENTE_ID_PARTIDA = "proyecto1-siguiente-id-partida";
 // ============================================================
 
 // el id mas alto de un array de objetos, o 0 si esta vacio. se llama
-// distinto de idMasAlto() de storage.js porque game.html carga los dos
-// archivos, y dos funciones con el mismo nombre se pisarian
+// idMayorDe y no idMasAlto(): ese era el nombre de una funcion de
+// storage.js, que game.html cargaba junto con este archivo, y dos funciones
+// con el mismo nombre se pisarian
 function idMayorDe(items) {
     return Math.max(0, ...items.map(item => item.id || 0));
 }

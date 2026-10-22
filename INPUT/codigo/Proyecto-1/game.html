@@ -150,13 +150,17 @@
     </section>
 
     <!-- el orden importa:
-         data.js             declara "heroes" (los datos iniciales)
-         storage.js          arma "listaHeroes" con lo guardado en localStorage (o con data.js)
+         CDN de Supabase     crea la variable global "supabase"
+         supabaseClient.js   crea "db", el cliente conectado al proyecto
+         data.js             declara "heroes" (los datos iniciales, para restablecer)
+         datos-heroes.js     trae la tabla "heroes" de Supabase y arma "listaHeroes"
          storage-usuarios.js carga y guarda usuarios y partidas (usuarios.json + localStorage)
          game.js             el login; al entrar llama a iniciarMemory()
          memory.js           el juego, que reparte cartas a partir de "listaHeroes" -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
     <script src="data.js"></script>
-    <script src="storage.js"></script>
+    <script src="datos-heroes.js"></script>
     <script src="storage-usuarios.js"></script>
     <script src="game.js"></script>
     <script src="memory.js"></script>

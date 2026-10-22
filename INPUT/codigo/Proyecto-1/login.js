@@ -10,9 +10,9 @@
 // es un log in de practica, NO seguridad real. todo lo que llega al
 // navegador se puede leer y ejecutar desde la consola: credenciales.js se
 // ve completo en DevTools -> Sources, mostrarGestion() se puede llamar
-// directo para saltar el login, y storage.js (cargado ANTES que este
-// archivo) deja crear o borrar heroes con guardarHeroes() sin pasar por
-// ningun formulario. este archivo controla que se VE al navegar la pagina
+// directo para saltar el login, y datos-heroes.js (cargado ANTES que este
+// archivo) deja crear o borrar heroes con insertarHeroe() o borrarHeroe()
+// sin pasar por ningun formulario (la politica de Supabase es abierta). este archivo controla que se VE al navegar la pagina
 // normalmente, no que se puede EJECUTAR desde las herramientas de
 // desarrollador. para proteger datos de verdad la validacion y el
 // guardado tienen que vivir en un servidor, donde el visitante no ve el
