@@ -1,25 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productos - Supabase</title>
+  <link rel="stylesheet" href="css/prueba2.css">
   <!-- CDN: trae la librería de Supabase ANTES que nuestros propios
        scripts — sin esta línea, "supabase.createClient" no existiría
        todavía cuando supabaseClient.js intente usarlo -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+<!-- .pagina y cada .tarjeta son solo para el diseño (css/prueba2.css):
+     agrupan los bloques sin cambiar ningún id que use prueba2.js -->
+<main class="pagina">
 
+  <header>
+    <h1 class="pagina-titulo">Productos</h1>
+    <p class="pagina-subtitulo">Tabla productos_practica en Supabase</p>
+  </header>
+
+  <section class="tarjeta">
+  <h2>Ver productos</h2>
   <button id="btn-traer">Traer productos</button>
   <div id="resultado"></div>
   <div id="resultado2"></div>
   <div id="precio"></div>
   <div id="categoria"></div>
   <div id="descripcion"></div>
+  </section>
 
-  <button id="btn-agregar-obj">Agregar producto</button>
-  
+  <section class="tarjeta">
+  <h2>Agregar producto</h2>
+
+  <!-- Formulario: cada campo tiene el MISMO nombre que la columna de la
+       tabla productos_practica (y que las claves de productoPrueba en
+       prueba2.js). El botón de abajo es el que dispara el envío. -->
+  <form id="form-producto">
+    <label>Nombre
+      <input type="text" id="nombre" required>
+    </label><br>
+
+    <label>Descripción
+      <textarea id="descripcion-input" required></textarea>
+    </label><br>
+
+    <label>Precio
+      <input type="number" id="precio-input" min="0" step="any" required>
+    </label><br>
+
+    <label>Unidades
+      <input type="number" id="unidades" min="0" step="1" required>
+    </label><br>
+
+    <label>Descuento
+      <input type="number" id="descuento" min="0" value="0">
+    </label><br>
+
+    <label>
+      <input type="checkbox" id="disponible" checked> Disponible
+    </label><br>
+
+    <!-- Las categorías se escriben separadas por coma: ropa, básicos -->
+    <label>Categorías (separadas por coma)
+      <input type="text" id="categorias" placeholder="ropa, básicos">
+    </label><br>
+
+    <label>URL de la imagen
+      <input type="url" id="image_url" placeholder="https://...">
+    </label><br>
+
+    <!-- type="submit": al hacer clic, el formulario valida los campos
+         "required" y luego dispara el evento "submit" que escuchamos en JS -->
+    <button type="submit" id="btn-agregar-obj">Agregar producto</button>
+  </form>
+
   <div id="notificacion"></div>
-  
-  <!-- supabaseClient.js crea "clienteSupabase": el cliente ya
+  </section>
+
+  <section class="tarjeta">
+  <!-- Buscador: un cajón para buscar por ID (un solo producto) y otro
+       para buscar por nombre (puede devolver varios). Ambos muestran su
+       resultado en #resultado-busqueda. -->
+  <h2>Buscar productos</h2>
+  <form id="form-buscar-id">
+    <label>ID
+      <input type="number" id="buscar-id" min="1" step="1" required>
+    </label>
+    <button type="submit">Buscar por ID</button>
+  </form>
+
+  <form id="form-buscar-nombre">
+    <label>Nombre
+      <input type="text" id="buscar-nombre" required>
+    </label>
+    <button type="submit">Buscar por nombre</button>
+  </form>
+
+  <div id="resultado-busqueda"></div>
+  </section>
+
+</main>
+
+  <!-- supabaseClient.js crea "db": el cliente ya
        conectado a tu proyecto de Supabase. Lo vamos a usar en
        prueba2  .js, por eso tiene que cargarse ANTES que ese archivo -->
   <script src="js/supabaseClient.js"></script>

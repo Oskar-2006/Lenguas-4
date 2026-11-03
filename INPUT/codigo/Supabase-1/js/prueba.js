@@ -8,7 +8,7 @@ botonTraer.addEventListener("click", async () => {
   // "productos": con el nombre equivocado Supabase responde que no existe
   // .order("id") los trae en el orden en que se insertaron (1, 2, 3):
   // sin él, la base los devuelve en el orden que le quede más cómodo
-  const { data, error } = await clienteSupabase
+  const { data, error } = await db
     .from("productos_practica")
     .select("*")
     .order("id", { ascending: true });

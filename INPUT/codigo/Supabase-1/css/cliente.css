@@ -1,0 +1,185 @@
+/* ============================================================
+   ESTILOS DE cliente.html
+   ============================================================
+   mismos colores de prueba2.css, en variables para cambiarlos en
+   un solo lugar. */
+
+:root {
+  --fondo: #f4f5f7;
+  --tarjeta: #ffffff;
+  --borde: #e2e5ea;
+  --texto: #1c2024;
+  --texto-suave: #5f6670;
+  --acento: #1f9d6b;
+  --acento-oscuro: #17805a;
+  --radio: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* un "display" escrito en este CSS le gana al atributo hidden del HTML.
+   sin esta regla, #vista-cliente (display: flex) nunca se ocultaria */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+h2 {
+  margin: 0 0 14px;
+  font-size: 1.3rem;
+}
+
+/* ---------- vista sin sesion ---------- */
+
+#vista-acceso {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+#vista-acceso form {
+  margin-top: 20px;
+  padding: 20px;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+
+#vista-acceso h3 {
+  margin: 0 0 12px;
+}
+
+/* ---------- vista con sesion: aside + contenido ---------- */
+
+#vista-cliente {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* columna flex: sus hijos van uno debajo del otro */
+.barra-lateral {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 240px;
+  padding: 16px;
+  background: var(--tarjeta);
+  border-right: 1px solid var(--borde);
+}
+
+/* margin-top: auto ocupa todo el espacio libre y empuja el bloque al fondo */
+.barra-lateral-abajo {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--borde);
+}
+
+.barra-lateral button {
+  width: 100%;
+  margin-bottom: 4px;
+  background: transparent;
+  color: var(--texto);
+  font-weight: 500;
+  text-align: left;
+}
+
+.barra-lateral button:hover {
+  background: var(--fondo);
+}
+
+.barra-lateral button.activo {
+  background: var(--acento);
+  color: #fff;
+}
+
+.contenido {
+  flex: 1;
+  min-width: 0; /* deja que la columna se encoja sin desbordar la pagina */
+  padding: 32px;
+}
+
+#form-perfil {
+  max-width: 420px;
+  padding: 20px;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+
+/* ---------- formularios y botones ---------- */
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
+input {
+  display: block;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 9px 11px;
+  font: inherit;
+  color: var(--texto);
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+}
+
+/* el correo no se edita: el fondo gris lo deja claro */
+input[readonly] {
+  background: var(--fondo);
+  color: var(--texto-suave);
+}
+
+button {
+  padding: 9px 16px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--acento);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--acento-oscuro);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+/* ---------- celular ---------- */
+
+/* el aside pasa a ser una barra arriba del contenido */
+@media (max-width: 700px) {
+  #vista-cliente {
+    flex-direction: column;
+  }
+
+  .barra-lateral {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--borde);
+  }
+
+  .contenido {
+    padding: 20px 16px;
+  }
+}

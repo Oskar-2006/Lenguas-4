@@ -3,7 +3,7 @@
 const TABLA_TAREAS = "tareas";
 
 async function obtenerTareas() {
-  const { data, error } = await clienteSupabase
+  const { data, error } = await db
     .from(TABLA_TAREAS)
     .select("*")
     .order("creada_en", { ascending: false });
@@ -13,7 +13,7 @@ async function obtenerTareas() {
 }
 
 async function insertarTarea(titulo) {
-  const { data, error } = await clienteSupabase
+  const { data, error } = await db
     .from(TABLA_TAREAS)
     .insert({ titulo })
     .select()
@@ -24,7 +24,7 @@ async function insertarTarea(titulo) {
 }
 
 async function eliminarTarea(id) {
-  const { error } = await clienteSupabase
+  const { error } = await db
     .from(TABLA_TAREAS)
     .delete()
     .eq("id", id);

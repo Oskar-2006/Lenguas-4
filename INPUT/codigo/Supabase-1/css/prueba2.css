@@ -1,0 +1,261 @@
+/* ============================================================
+   ESTILOS DE prueba2.html
+   ============================================================
+   panel claro y sobrio: lo que tiene que resaltar son los datos.
+   los colores van en variables (custom properties) para cambiarlos en
+   un solo lugar. el verde es parecido al de Supabase. */
+
+:root {
+  --fondo: #f4f5f7;
+  --tarjeta: #ffffff;
+  --borde: #e2e5ea;
+  --texto: #1c2024;
+  --texto-suave: #5f6670;
+  --acento: #1f9d6b;
+  --acento-oscuro: #17805a;
+  --codigo-fondo: #f7f8fa;
+  --radio: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 32px 16px 64px;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* todo el contenido en una columna centrada que no pase de 860px */
+.pagina {
+  max-width: 860px;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.pagina-titulo {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+  letter-spacing: -0.01em;
+}
+
+.pagina-subtitulo {
+  margin: 0;
+  color: var(--texto-suave);
+}
+
+/* ---------- tarjetas ---------- */
+
+.tarjeta {
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 20px 22px;
+}
+
+.tarjeta h2 {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+}
+
+/* ---------- botones ---------- */
+
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--acento);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background: var(--acento-oscuro);
+}
+
+/* al apretar, el boton baja un poco: se siente que respondio */
+button:active {
+  transform: translateY(1px);
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+/* ---------- formularios ---------- */
+
+/* los <br> del HTML ya no hacen falta: el grid separa los campos */
+form br {
+  display: none;
+}
+
+#form-producto {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="url"],
+textarea {
+  font: inherit;
+  font-weight: 400;
+  color: var(--texto);
+  padding: 9px 11px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fff;
+  width: 100%;
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* nombre, descripcion, categorias, url y el boton ocupan las dos columnas.
+   :has() elige el <label> que TIENE adentro ese campo */
+#form-producto label:has(#nombre),
+#form-producto label:has(#descripcion-input),
+#form-producto label:has(#categorias),
+#form-producto label:has(#image_url),
+#form-producto button {
+  grid-column: 1 / -1;
+}
+
+/* el checkbox va en fila con su texto, no en columna */
+label:has(input[type="checkbox"]) {
+  flex-direction: row;
+  align-items: center;
+  align-self: end;
+  color: var(--texto);
+  font-weight: 500;
+}
+
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--acento);
+}
+
+#form-producto button {
+  justify-self: start;
+}
+
+/* los dos buscadores: campo y boton en la misma fila */
+#form-buscar-id,
+#form-buscar-nombre {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+#form-buscar-id label,
+#form-buscar-nombre label {
+  flex: 1;
+}
+
+/* ---------- resultados ---------- */
+
+/* el JSON crudo y la notificacion: caja de codigo con scroll propio.
+   white-space: pre-wrap respeta los saltos de linea del JSON.stringify */
+#resultado,
+#notificacion {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--codigo-fondo);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+/* :not(:empty) = solo se ven cuando el JS ya escribio algo adentro */
+#resultado:not(:empty),
+#notificacion:not(:empty) {
+  margin-top: 14px;
+  padding: 12px 14px;
+}
+
+#resultado:empty,
+#notificacion:empty {
+  border: none;
+}
+
+#resultado2 ul {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#resultado2 li {
+  padding: 6px 12px;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--codigo-fondo);
+  font-size: 0.9rem;
+}
+
+#precio p,
+#categoria p,
+#descripcion p {
+  margin: 10px 0 0;
+  color: var(--texto-suave);
+}
+
+#resultado-busqueda {
+  display: grid;
+  gap: 10px;
+}
+
+/* las tarjetas de resultado que arma el JS con createElement("div") */
+#resultado-busqueda > div {
+  padding: 12px 14px;
+  border: 1px solid var(--borde);
+  border-left: 3px solid var(--acento);
+  border-radius: 8px;
+  background: var(--codigo-fondo);
+  white-space: pre-wrap;
+}
+
+/* ---------- celular ---------- */
+
+@media (max-width: 600px) {
+  #form-producto {
+    grid-template-columns: 1fr;
+  }
+
+  #form-buscar-id,
+  #form-buscar-nombre {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

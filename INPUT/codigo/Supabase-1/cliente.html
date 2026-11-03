@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi cuenta</title>
+    <link rel="stylesheet" href="css/cliente.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <!-- Vista sin sesión: registro y login -->
+    <section id="vista-acceso">
+      <h2>Mi cuenta</h2>
+      <p id="estado-sesion">No has iniciado sesión.</p>
+
+      <form id="form-registro">
+        <h3>Registrarme</h3>
+        <label for="registro-nombre">Nombre</label>
+        <input id="registro-nombre" type="text" required />
+
+        <label for="registro-correo">Correo</label>
+        <input id="registro-correo" type="email" required />
+
+        <label for="registro-password">Contraseña</label>
+        <input id="registro-password" type="password" minlength="6" required />
+
+        <button type="submit">Crear cuenta</button>
+      </form>
+
+      <form id="form-login">
+        <h3>Iniciar sesión</h3>
+        <label for="login-correo">Correo</label>
+        <input id="login-correo" type="email" required />
+
+        <label for="login-password">Contraseña</label>
+        <input id="login-password" type="password" required />
+
+        <button type="submit">Iniciar sesión</button>
+      </form>
+
+    </section>
+
+    <!-- Vista con sesión: "hidden" la mantiene oculta hasta que cliente.js
+         verifique el login -->
+    <div id="vista-cliente" hidden>
+      <aside class="barra-lateral">
+        <nav>
+          <button id="btn-inicio" type="button">Inicio</button>
+        </nav>
+
+        <!-- margin-top: auto en el CSS empuja este bloque al fondo del aside -->
+        <div class="barra-lateral-abajo">
+          <button id="btn-configuracion" type="button">Configuración de usuario</button>
+          <button id="btn-logout" type="button">Cerrar sesión</button>
+        </div>
+      </aside>
+
+      <main class="contenido">
+        <section id="seccion-inicio">
+          <h2>Inicio</h2>
+          <p id="saludo-cliente"></p>
+        </section>
+
+        <section id="seccion-configuracion" hidden>
+          <h2>Configuración de usuario</h2>
+
+          <form id="form-perfil" hidden>
+            <label for="perfil-nombre">Nombre</label>
+            <input id="perfil-nombre" type="text" required />
+
+            <label for="perfil-telefono">Teléfono</label>
+            <input id="perfil-telefono" type="tel" />
+
+            <label for="perfil-direccion">Dirección</label>
+            <input id="perfil-direccion" type="text" />
+
+            <!-- readonly: el correo se muestra, pero no se edita desde aquí -->
+            <label for="perfil-correo">Correo</label>
+            <input id="perfil-correo" type="email" readonly />
+
+            <!-- readonly: si el rol se pudiera editar, cualquiera se pondría admin -->
+            <label for="perfil-rol">Rol</label>
+            <input id="perfil-rol" type="text" readonly />
+
+            <button type="submit">Guardar cambios</button>
+          </form>
+
+          <p id="perfil-mensaje"></p>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/cliente.js"></script>
+  </body>
+</html>

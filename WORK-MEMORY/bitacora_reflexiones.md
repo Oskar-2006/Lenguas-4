@@ -86,3 +86,33 @@ login para validar el email y la contraseña.
 ## 2026-10-01
 
 La reflexión es hacer la tarea, porque cuando la piden es para usarla.
+
+## 2026-10-15
+
+Primera clase de Supabase (guía de la semana 11): crear la tabla `productos_practica` y leerla
+desde JS con el cliente de Supabase. Arranqué `INPUT/codigo/Supabase-1/` con una lista de tareas
+de prueba y `prueba.js`, que trae los productos de la tabla. Al crear una política salió un error
+porque llamaba a una función SQL que no existía.
+
+## 2026-10-22
+
+Pasé el CRUD de héroes de `Proyecto-1` de `localStorage` a Supabase: tabla `heroes`, funciones
+de `gestion.js` con `async`/`await` y las imágenes nuevas en Supabase Storage. Ahora los héroes
+ya no viven en el navegador, sino en una base que cualquier página puede leer. En clase
+insertamos productos en `productos_practica` desde JS, con una columna nueva `image_url` para
+las fotos. El error del día fue usar `db` cuando el cliente se llamaba `clienteSupabase`.
+
+## 2026-10-30
+
+La actividad de hoy fue el proceso de inicio y registro de sesión en Supabase, para que los
+clientes puedan tener un correo con el cual ingresar a la página del e-commerce.
+
+De tarea quedó una barra lateral en `cliente.html` con "Configuración de usuario" abajo, donde el
+cliente actualiza sus datos con un `update`. El correo y el rol se muestran pero no se editan.
+
+## 2026-11-03
+
+No fui a la clase de productos, así que la recuperé con la guía del panel de administrador.
+Creé la tabla `productos` del e-commerce (sin "_practica", con las columnas de la semana 11 más
+`plataforma`) y el panel `admin.html`, con el CRUD de productos y la sección "Mis clientes". Las
+políticas para que solo el admin cree, edite y borre quedan para cuando se active RLS.

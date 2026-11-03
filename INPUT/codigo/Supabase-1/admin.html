@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de administrador - Solo Juega</title>
+    <link rel="stylesheet" href="css/admin.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <div id="vista-admin">
+      <!-- Aside: igual que en cliente.html, los botones cambian la sección -->
+      <aside class="barra-lateral">
+        <h1 class="marca">Solo Juega</h1>
+        <p class="marca-sub">Panel de administrador</p>
+        <nav>
+          <button id="btn-productos" type="button" class="activo">Productos</button>
+          <button id="btn-clientes" type="button">Mis clientes</button>
+        </nav>
+      </aside>
+
+      <main class="contenido">
+        <!-- Mensaje de estado: aquí se muestra si algo salió bien o mal -->
+        <p id="mensaje-estado" role="status"></p>
+
+        <section id="seccion-productos">
+          <h2>Productos</h2>
+
+          <div class="tarjeta">
+            <h3 id="titulo-formulario">Agregar producto</h3>
+
+            <form id="form-producto">
+              <label for="nombre" class="ancho-completo">Nombre
+                <input type="text" id="nombre" required />
+              </label>
+
+              <label for="descripcion" class="ancho-completo">Descripción
+                <textarea id="descripcion"></textarea>
+              </label>
+
+              <label for="precio">Precio
+                <input type="number" id="precio" min="0" step="1" required />
+              </label>
+
+              <label for="unidades">Unidades
+                <input type="number" id="unidades" min="0" step="1" required />
+              </label>
+
+              <label for="descuento">Descuento
+                <input type="number" id="descuento" min="0" step="1" value="0" />
+              </label>
+
+              <label for="plataforma">Plataforma
+                <select id="plataforma">
+                  <option value="">Sin definir</option>
+                  <option value="PC">PC</option>
+                  <option value="Consola">Consola</option>
+                  <option value="Ambas">Ambas</option>
+                </select>
+              </label>
+
+              <label for="categorias" class="ancho-completo">Categorías (separadas por coma)
+                <input type="text" id="categorias" placeholder="sillas, pc" />
+              </label>
+
+              <label for="image_url" class="ancho-completo">URL de la imagen
+                <input type="url" id="image_url" placeholder="https://..." />
+              </label>
+
+              <label for="disponible" class="fila">
+                <input type="checkbox" id="disponible" checked /> Disponible
+              </label>
+
+              <div class="botones-form ancho-completo">
+                <button type="submit" id="btn-guardar">Agregar producto</button>
+                <!-- Solo se ve mientras se edita un producto -->
+                <button type="button" id="btn-cancelar" class="secundario" hidden>Cancelar edición</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="tarjeta">
+            <h3>Buscar productos</h3>
+            <form id="form-buscar-id" class="form-buscar">
+              <label for="buscar-id">ID
+                <input type="number" id="buscar-id" min="1" step="1" required />
+              </label>
+              <button type="submit">Buscar por ID</button>
+            </form>
+
+            <form id="form-buscar-nombre" class="form-buscar">
+              <label for="buscar-nombre">Nombre
+                <input type="text" id="buscar-nombre" required />
+              </label>
+              <button type="submit">Buscar por nombre</button>
+            </form>
+
+            <button type="button" id="btn-ver-todos" class="secundario">Ver todos los productos</button>
+          </div>
+
+          <div class="tarjeta">
+            <h3>Lista de productos</h3>
+            <div id="lista-productos"></div>
+          </div>
+        </section>
+
+        <section id="seccion-clientes" hidden>
+          <h2>Mis clientes</h2>
+          <div class="tarjeta">
+            <button type="button" id="btn-ver-clientes">Ver todos los clientes</button>
+            <ul id="lista-clientes"></ul>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- supabaseClient.js crea "db", así que va ANTES de admin.js -->
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
+</html>
