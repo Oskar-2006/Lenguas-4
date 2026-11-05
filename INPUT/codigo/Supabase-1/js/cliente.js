@@ -143,7 +143,7 @@ async function mostrarEstadoSesion() {
   if (hayUsuario) {
     document.getElementById('saludo-cliente').textContent =
       `Sesión iniciada como ${data.user.email}`;
-    mostrarSeccion('inicio');
+    await mostrarSeccion('inicio');
   } else {
     document.getElementById('estado-sesion').textContent = 'No has iniciado sesión.';
     ocultarFormularioPerfil();
@@ -151,7 +151,7 @@ async function mostrarEstadoSesion() {
 }
 
 // Muestra una sección del contenido principal y marca su botón en el aside.
-function mostrarSeccion(nombre) {
+async function mostrarSeccion(nombre) {
   const esInicio = nombre === 'inicio';
 
   document.getElementById('seccion-inicio').hidden = !esInicio;
@@ -160,6 +160,93 @@ function mostrarSeccion(nombre) {
   // toggle(clase, condicion) pone la clase si la condición es true y la quita si es false
   document.getElementById('btn-inicio').classList.toggle('activo', esInicio);
   document.getElementById('btn-configuracion').classList.toggle('activo', !esInicio);
+
+  // Si se abre la sección de inicio, cargar los productos
+  if (esInicio) {
+    await cargarYMostrarProductos();
+  }
+}
+
+async function cargarProductos() {
+  const { data, error } = await db
+    .from('productos_practica')
+    .select('*');
+
+  if (error) {
+    console.log('Error al cargar productos:', error);
+    return null;
+  }
+
+  return data;
+}
+
+async function cargarYMostrarProductos() {
+  const mensajeProductos = document.getElementById('mensaje-productos');
+  const listaProductos = document.getElementById('lista-productos');
+
+  // Limpiar contenedor anterior
+  listaProductos.innerHTML = '';
+  mensajeProductos.textContent = '';
+
+  const productos = await cargarProductos();
+
+  if (!productos) {
+    mensajeProductos.textContent = 'No se pudieron cargar los productos. Intenta de nuevo.';
+    return;
+  }
+
+  if (productos.length === 0) {
+    mensajeProductos.textContent = 'No hay productos disponibles.';
+    return;
+  }
+
+  // Renderizar cada producto como una tarjeta
+  productos.forEach((producto) => {
+    const card = document.createElement('div');
+    card.className = 'producto-card';
+
+    // Imagen
+    if (producto.image_url) {
+      const img = document.createElement('img');
+      img.className = 'producto-imagen';
+      img.src = producto.image_url;
+      img.alt = producto.nombre || 'Producto';
+      img.onerror = () => {
+        img.replaceWith(crearImagenPlaceholder());
+      };
+      card.appendChild(img);
+    } else {
+      card.appendChild(crearImagenPlaceholder());
+    }
+
+    // Contenedor para texto y precio
+    const contenido = document.createElement('div');
+    contenido.className = 'producto-contenido';
+
+    const titulo = document.createElement('h4');
+    titulo.textContent = producto.nombre || 'Sin nombre';
+
+    const descripcion = document.createElement('p');
+    descripcion.textContent = producto.descripcion || 'Sin descripción';
+
+    const precio = document.createElement('div');
+    precio.className = 'producto-precio';
+    precio.textContent = `$${producto.precio || '0.00'}`;
+
+    contenido.appendChild(titulo);
+    contenido.appendChild(descripcion);
+    contenido.appendChild(precio);
+
+    card.appendChild(contenido);
+    listaProductos.appendChild(card);
+  });
+}
+
+function crearImagenPlaceholder() {
+  const placeholder = document.createElement('div');
+  placeholder.className = 'producto-imagen placeholder';
+  placeholder.textContent = '🖼️';
+  return placeholder;
 }
 
 async function leerCliente(id) {
@@ -233,9 +320,21 @@ function ocultarFormularioPerfil() {
   form.reset(); // borra los datos del cliente anterior de los campos
 }
 
-document.getElementById('btn-inicio').addEventListener('click', () => {
-  mostrarSeccion('inicio');
+document.getElementById('btn-inicio').addEventListener('click', async () => {
+  await mostrarSeccion('inicio');
 });
+
+document.getElementById('btn-productos-publicos').addEventListener('click', () => {
+  window.location.href = 'catalogo.html';
+});
+
+// Mismo botón, pero en la pantalla sin sesión (puede no existir)
+const btnCatalogoAcceso = document.getElementById('btn-catalogo-acceso');
+if (btnCatalogoAcceso) {
+  btnCatalogoAcceso.addEventListener('click', () => {
+    window.location.href = 'catalogo.html';
+  });
+}
 
 // Los datos se leen cada vez que se abre la configuración, no al iniciar
 // sesión: así no se hace la consulta si el cliente nunca entra aquí.

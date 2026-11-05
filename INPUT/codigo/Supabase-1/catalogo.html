@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Catálogo</title>
+    <link rel="stylesheet" href="css/cliente.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <!-- Misma estructura que la vista con sesión de cliente.html, pero sin sesión -->
+    <div id="vista-cliente">
+      <aside class="barra-lateral">
+        <nav>
+          <button id="btn-inicio" type="button" class="activo">Inicio</button>
+        </nav>
+
+        <div class="barra-lateral-abajo">
+          <button id="btn-acceso" type="button">Iniciar sesión / Registrarme</button>
+        </div>
+      </aside>
+
+      <main class="contenido">
+        <section id="seccion-inicio">
+          <h2>Inicio</h2>
+          <p id="saludo-cliente">Estás viendo el catálogo sin iniciar sesión.</p>
+
+          <div id="contenedor-productos">
+            <h3>Productos disponibles</h3>
+            <div id="lista-productos" class="grid-productos"></div>
+            <p id="mensaje-productos"></p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/catalogo.js"></script>
+  </body>
+</html>

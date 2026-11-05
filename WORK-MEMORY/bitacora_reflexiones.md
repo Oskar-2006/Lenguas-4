@@ -116,3 +116,19 @@ No fui a la clase de productos, así que la recuperé con la guía del panel de 
 Creé la tabla `productos` del e-commerce (sin "_practica", con las columnas de la semana 11 más
 `plataforma`) y el panel `admin.html`, con el CRUD de productos y la sección "Mis clientes". Las
 políticas para que solo el admin cree, edite y borre quedan para cuando se active RLS.
+
+## 2026-11-05
+
+Hoy aprendimos sobre RLS (Row Level Security): qué es, por qué es necesario y cómo aplicarlo en
+Supabase. La tabla `clientes` no tenía RLS activado, así que hicimos una prueba de seguridad real:
+desde el inspector del navegador sacamos la clave `anon` (que es pública por diseño) y con un
+comando `curl` insertamos una fila falsa en `clientes` sin tener sesión iniciada — confirmando que
+sin RLS cualquiera con la clave puede leer y escribir en la tabla.
+
+También creamos `catalogo.html` y `js/catalogo.js` para que un visitante pueda ver los productos
+sin iniciar sesión, con la misma estructura visual de la vista con sesión (barra lateral +
+contenido).
+
+Pendiente para la próxima: activar RLS en `clientes` con las políticas de select/update/insert,
+proteger la columna `rol` para que nadie se haga admin, y aprender a usar archivos `.env` para no
+dejar las claves en texto plano en el código.

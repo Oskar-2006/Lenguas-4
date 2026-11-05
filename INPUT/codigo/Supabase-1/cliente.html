@@ -12,6 +12,7 @@
     <section id="vista-acceso">
       <h2>Mi cuenta</h2>
       <p id="estado-sesion">No has iniciado sesión.</p>
+      <button id="btn-catalogo-acceso" type="button">Ver catálogo público</button>
 
       <form id="form-registro">
         <h3>Registrarme</h3>
@@ -38,6 +39,10 @@
         <button type="submit">Iniciar sesión</button>
       </form>
 
+      <div style="margin-top: 20px; text-align: center;">
+        <button id="btn-productos-publicos" type="button" style="background-color: #f4f5f7; color: #1c2024; border: 1px solid #e2e5ea; border-radius: 8px; padding: 9px 16px; font-weight: 600; cursor: pointer;">Ver catálogo público</button>
+      </div>
+
     </section>
 
     <!-- Vista con sesión: "hidden" la mantiene oculta hasta que cliente.js
@@ -59,6 +64,12 @@
         <section id="seccion-inicio">
           <h2>Inicio</h2>
           <p id="saludo-cliente"></p>
+
+          <div id="contenedor-productos">
+            <h3>Productos disponibles</h3>
+            <div id="lista-productos" class="grid-productos"></div>
+            <p id="mensaje-productos"></p>
+          </div>
         </section>
 
         <section id="seccion-configuracion" hidden>
